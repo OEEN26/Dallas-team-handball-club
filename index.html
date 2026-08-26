@@ -20,7 +20,7 @@ body{margin:0;background:#090909;color:#f5f5f5;font-family:-apple-system,BlinkMa
 </div><div class="actions" style="justify-content:flex-end"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="savePlayer()">Save Player</button></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXe2');let editing=null;
+const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZnNodGpyeGJ0eWRvYWdoaGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MDU0NjIsImV4cCI6MjEwMzI4MTQ2Mn0.WQL24YgZ2uUu-telRRNk2477FFWAbL9GIzyA5hdnq8k');
 const $=x=>document.getElementById(x);
 function showView(v){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(v).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));if(v==='dashboard')loadStats();if(v==='men'||v==='women')loadTeam(v==='men'?'Men':'Women');if(v==='orders')loadOrders()}
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
