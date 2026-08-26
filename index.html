@@ -1,127 +1,45 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0b">
-<title>DTHC Club Manager</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DTHC Club Manager V4</title>
 <style>
-:root{--g:#19c957;--bg:#090909;--card:#151515;--line:#2b2b2b;--muted:#9b9b9b;--red:#ef4444;--gold:#f5b942}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:#f7f7f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{position:sticky;top:0;z-index:20;background:rgba(9,9,9,.96);border-bottom:1px solid var(--line);padding:12px 14px}
-.head{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:flex;gap:10px;align-items:center}.logo{width:40px;height:40px;border-radius:11px;background:var(--g);color:#06200d;display:grid;place-items:center;font-weight:950}.title{font-weight:850}.subtitle{font-size:11px;color:var(--muted)}
-.nav{max-width:1100px;margin:10px auto 0;display:flex;gap:6px;overflow:auto;padding-bottom:1px}.nav a{flex:0 0 auto;text-decoration:none;color:#aaa;border:1px solid var(--line);background:#121212;padding:9px 12px;border-radius:9px;font-size:13px}.nav a:hover,.nav a:focus{color:#07130a;background:var(--g);border-color:var(--g)}
-main{max-width:1100px;margin:auto;padding:16px 14px 60px}.page{scroll-margin-top:130px;margin-bottom:28px}.page h2{font-size:20px;margin:0 0 12px}.hint{font-size:12px;color:var(--muted);margin:-5px 0 14px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px}.big{font-size:25px;font-weight:900}.small{font-size:11px;color:var(--muted);margin-top:3px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.btn{border:1px solid var(--line);background:#171717;color:#eee;border-radius:9px;padding:9px 12px;text-decoration:none;display:inline-block}.primary{background:var(--g);border-color:var(--g);color:#061108;font-weight:850}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:12px}.table{overflow:auto;border:1px solid var(--line);border-radius:10px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);font-size:13px}th{font-size:10px;text-transform:uppercase;color:#999}
-.badge{display:inline-block;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800}.ok{background:#123a1f;color:#6df18c}.warn{background:#47350d;color:#ffd46a}.off{background:#431719;color:#ff9292}.info{background:#123446;color:#78dfff}
-.numbers{display:grid;grid-template-columns:repeat(10,1fr);gap:7px}.num{min-height:64px;border:1px solid #303030;border-radius:9px;background:#111;padding:7px;display:flex;flex-direction:column;justify-content:space-between}.num b{font-size:16px}.num span{font-size:9px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.taken{background:#153a20;border-color:#267a3d}.reserved{background:#3c2e0e;border-color:#7f611c}.free{background:#121212}
-.callout{padding:12px;border-radius:10px;background:#0f2b18;border:1px solid #1d6932;color:#b5f6c4;font-size:12px;margin-bottom:12px}
-dialog{border:1px solid var(--line);border-radius:16px;background:#151515;color:#fff;width:min(600px,94vw);padding:18px}dialog::backdrop{background:rgba(0,0,0,.72)}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;color:#999;font-size:11px;margin-bottom:5px}.field input,.field select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#0e0e0e;color:#fff}.form-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
-footer{text-align:center;color:#666;font-size:11px;padding:20px}
-@media(max-width:760px){.cards{grid-template-columns:1fr 1fr}.numbers{grid-template-columns:repeat(5,1fr)}.num{min-height:60px}.form{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<header>
-<div class="head"><div class="brand"><div class="logo">DTH</div><div><div class="title">Dallas Team Handball Club</div><div class="subtitle">Roster • Jerseys • Numbers</div></div></div><button class="btn primary" id="addTop">+ Player</button></div>
-<nav class="nav" aria-label="Main navigation">
-<a href="#dashboard">Dashboard</a><a href="#players">Players</a><a href="#numbers">Jersey Numbers</a><a href="#orders">Jersey Orders</a>
-</nav>
-</header>
-<main>
-<section id="dashboard" class="page">
-<h2>Dashboard</h2><div class="callout">Your existing jersey assignments from the roster you provided are loaded. Men's and women's numbers are tracked separately.</div>
-<div class="cards" id="stats"></div>
-<div class="panel"><div class="tools"><a class="btn primary" href="#players">Manage Players</a><a class="btn" href="#numbers">Check #1–99</a><a class="btn" href="#orders">Jersey Orders</a><button class="btn" id="exportBtn">Backup Data</button></div></div>
-</section>
-
-<section id="players" class="page">
-<h2>Players</h2><div class="hint">Active roster, jersey assignment, membership and tournament status.</div>
-<div class="tools"><button class="btn primary" id="addPlayer">+ Add Player</button><input id="search" placeholder="Search player" style="max-width:220px"><select id="teamFilter" style="max-width:150px"><option>All</option><option>Men</option><option>Women</option></select></div>
-<div class="table"><table><thead><tr><th>Name</th><th>Team</th><th>#</th><th>Status</th><th>Size</th><th>Membership</th><th>Tournament</th><th>Jersey</th><th>Action</th></tr></thead><tbody id="playersBody"></tbody></table></div>
-</section>
-
-<section id="numbers" class="page">
-<h2>Jersey Numbers</h2><div class="hint">Green = taken, gold = reserved, dark = available. Tap a number to assign it.</div>
-<div class="tools"><select id="numTeam" style="max-width:150px"><option>Men</option><option>Women</option></select><button class="btn" id="availableBtn">Available Only</button><button class="btn" id="allBtn">Show All</button></div>
-<div class="numbers" id="numbersGrid"></div>
-</section>
-
-<section id="orders" class="page">
-<h2>Jersey Orders</h2><div class="hint">Track who needs a jersey, what has been ordered and what has arrived.</div>
-<div class="tools"><select id="orderFilter" style="max-width:180px"><option>All</option><option>Not Ordered</option><option>Ordered</option><option>Received</option></select></div>
-<div class="table"><table><thead><tr><th>Player</th><th>Team</th><th>#</th><th>Size</th><th>Status</th><th>Action</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
-</section>
-</main>
-<footer>DTHC Club Manager V3 • Data is stored on this device until a cloud database is connected.</footer>
-
-<dialog id="playerDialog">
-<form method="dialog" id="playerForm">
-<h3 id="dialogTitle">Add Player</h3>
-<div class="form">
-<div class="field"><label>Name</label><input id="pName" required></div>
-<div class="field"><label>Team</label><select id="pTeam"><option>Men</option><option>Women</option></select></div>
-<div class="field"><label>Jersey Number</label><select id="pNum"></select></div>
-<div class="field"><label>Status</label><select id="pStatus"><option>Active</option><option>Standby</option><option>Inactive</option><option>Reserved</option></select></div>
-<div class="field"><label>Shirt Size</label><select id="pSize"><option></option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option></select></div>
-<div class="field"><label>Membership</label><select id="pMembership"><option>Unpaid</option><option>Paid</option></select></div>
-<div class="field"><label>Tournament Roster</label><select id="pTournament"><option>Yes</option><option>No</option></select></div>
-<div class="field"><label>Jersey Order</label><select id="pOrder"><option>Not Ordered</option><option>Ordered</option><option>Received</option></select></div>
-</div>
-<div class="form-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="savePlayer" value="default">Save Player</button></div>
-</form>
-</dialog>
-
+body{margin:0;background:#090909;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{padding:14px;background:#111;border-bottom:1px solid #292929;position:sticky;top:0;z-index:4}.bar{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900}.brand span{color:#19c957}.wrap{max-width:1100px;margin:auto;padding:18px 14px 60px}.nav{display:flex;gap:7px;overflow:auto;margin-top:12px}.nav button,.btn{border:1px solid #303030;background:#171717;color:#eee;padding:10px 12px;border-radius:9px}.nav button.active,.primary{background:#19c957;color:#061108;border-color:#19c957;font-weight:800}.view{display:none}.view.active{display:block}.screen{display:none}.screen.active{display:block}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:#151515;border:1px solid #292929;border-radius:12px;padding:14px}.big{font-size:25px;font-weight:900}.muted{color:#999;font-size:12px}.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}.num{min-height:58px;border:1px solid #303030;background:#111;color:white;border-radius:8px;padding:6px}.taken{background:#14371e;border-color:#28793e}.reserved{background:#3d300f;border-color:#80651e}.table{overflow:auto;margin-top:12px}.table table{width:100%;min-width:760px;border-collapse:collapse}.table th,.table td{text-align:left;padding:9px;border-bottom:1px solid #292929;font-size:13px}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:11px;color:#999;margin-bottom:5px}.field input,.field select{width:100%;box-sizing:border-box;padding:10px;background:#0e0e0e;color:white;border:1px solid #303030;border-radius:8px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:10;padding:15px}.modal.open{display:flex}.sheet{background:#171717;border:1px solid #333;border-radius:15px;padding:18px;width:min(650px,95vw)}@media(max-width:700px){.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:repeat(5,1fr)}.form{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="bar"><div class="brand">Dallas Team <span>Handball</span> Club</div><button class="btn" id="logout">Log out</button></div></header>
+<div class="wrap">
+<div id="login" class="view active"><div class="card"><h2>Club Admin Login</h2><p class="muted">Sign in with your club admin account.</p><div class="form"><div class="field"><label>Email</label><input id="email" type="email"></div><div class="field"><label>Password</label><input id="password" type="password"></div></div><div class="actions"><button class="btn primary" id="signIn">Sign In</button><button class="btn" id="signUp">Create Account</button></div><div id="authMsg" class="muted"></div></div></div>
+<div id="app" class="view">
+<div class="nav"><button data-view="dashboard">Dashboard</button><button data-view="men">Men</button><button data-view="women">Women</button><button data-view="orders">Jersey Orders</button></div>
+<section id="dashboard" class="screen"><h2>Club Dashboard</h2><div class="cards" id="stats"></div></section>
+<section id="men" class="screen"><h2>Men's Team</h2><div class="actions"><button class="btn primary" onclick="addPlayer('Men')">+ Add Player</button><button class="btn" onclick="toggleNumbers('Men')">Jersey Numbers</button></div><div id="menRoster" class="table"></div><div id="menNumbers" style="display:none"></div></section>
+<section id="women" class="screen"><h2>Women's Team</h2><div class="actions"><button class="btn primary" onclick="addPlayer('Women')">+ Add Player</button><button class="btn" onclick="toggleNumbers('Women')">Jersey Numbers</button></div><div id="womenRoster" class="table"></div><div id="womenNumbers" style="display:none"></div></section>
+<section id="orders" class="screen"><h2>Jersey Orders</h2><div id="ordersTable" class="table"></div></section></div></div>
+<div id="modal" class="modal"><div class="sheet"><h3 id="modalTitle">Player</h3><div class="form">
+<div class="field"><label>Name</label><input id="pName"></div><div class="field"><label>Team</label><select id="pTeam"><option>Men</option><option>Women</option></select></div>
+<div class="field"><label>Phone</label><input id="pPhone"></div><div class="field"><label>Email</label><input id="pEmail" type="email"></div>
+<div class="field"><label>Position</label><input id="pPosition"></div><div class="field"><label>Jersey #</label><select id="pNum"></select></div>
+<div class="field"><label>Shirt Size</label><input id="pSize"></div><div class="field"><label>Status</label><select id="pStatus"><option>Active</option><option>Standby</option><option>Inactive</option><option>Reserved</option></select></div>
+<div class="field"><label>Membership</label><select id="pMembership"><option>Paid</option><option>Unpaid</option></select></div><div class="field"><label>Tournament Roster</label><select id="pTournament"><option value="true">Yes</option><option value="false">No</option></select></div>
+</div><div class="actions" style="justify-content:flex-end"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="savePlayer()">Save Player</button></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const KEY='DTHC_V3';
-let db=JSON.parse(localStorage.getItem(KEY)||'null'), editing=null, onlyFree=false;
-if(!db){
- const rows=[
-["Wenske","Men",1,"Active"],["Walsh","Men",2,"Active"],["Teng","Men",3,"Active"],["Player #4","Men",4,"Active"],["Pratap","Men",5,"Active"],["Rai","Men",6,"Inactive"],["Yairo","Men",7,"Active"],["Zajdklah","Men",8,"Active"],["Gonzalez","Men",9,"Active"],["Carlos M","Men",10,"Active"],["Brandon","Men",11,"Active"],["Boron","Men",12,"Inactive"],["Trevino","Men",13,"Standby"],["Player #14","Men",14,"Inactive"],["Varkachuk","Men",15,"Active"],["Martinez","Men",16,"Standby"],["Choh / Garcia","Men",17,"Standby"],["Chi","Men",18,"Active"],["Pavan","Men",19,"Standby"],["Nikhil","Men",21,"Active"],["Peter","Men",22,"Active"],["Omid","Men",23,"Active"],["Garcia","Men",24,"Active"],["Montoya","Men",25,"Standby"],["Espinosa","Men",26,"Active"],["Morrison","Men",27,"Active"],["Tosmel","Men",28,"Active"],["Don Kin","Men",30,"Active"],["Celso","Men",31,"Inactive"],["BLANK M","Men",43,"Reserved"],["BLANK M","Men",44,"Reserved"],["BLANK SMALL","Men",45,"Reserved"],["Tudor","Men",47,"Active"],["BLANK M","Men",52,"Reserved"],["BLANK M","Men",53,"Reserved"],["BLANK M","Men",54,"Reserved"],["BLANK XL / Pimiental","Men",55,"Standby"],["Iyon","Men",56,"Standby"],["BLANK L","Men",62,"Reserved"],["BLANK L","Men",63,"Reserved"],["BLANK L","Men",64,"Reserved"],["BLANK L","Men",65,"Reserved"],["BLANK L","Men",66,"Reserved"],["Felix","Men",77,"Inactive"],["Federico","Men",99,"Active"],
-["Adela","Women",1,"Standby"],["Rahaf","Women",2,"Standby"],["Camargo","Women",3,"Standby"],["Neubauer","Women",4,"Active"],["Loco","Women",5,"Active"],["Rafa","Women",6,"Active"],["Greicse","Women",7,"Active"],["Kirsten","Women",8,"Active"],["Lily","Women",9,"Inactive"],["Rachel / Houston","Women",10,"Reserved"],["Lopez","Women",13,"Inactive"],["Carla","Women",14,"Active"],["Jaisha","Women",15,"Inactive"],["Faiela","Women",16,"Active"],["Juliette","Women",17,"Standby"],["Ximena","Women",22,"Active"]];
- db={players:rows.map((r,i)=>({id:i+1,name:r[0],team:r[1],num:r[2],status:r[3],size:"",membership:"Unpaid",tournament:r[3]==="Active"?"Yes":"No",order:"Not Ordered"}))};
- save();
-}
-function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function badge(v){let c=v==="Active"||v==="Paid"||v==="Received"||v==="Yes"?"ok":v==="Standby"||v==="Ordered"?"info":v==="Reserved"||v==="Unpaid"?"warn":"off";return '<span class="badge '+c+'">'+esc(v)+'</span>'}
-function render(){
- const a=db.players.filter(p=>p.status==="Active").length, mo=new Set(db.players.filter(p=>p.team==="Men"&&p.num).map(p=>p.num)).size, wo=new Set(db.players.filter(p=>p.team==="Women"&&p.num).map(p=>p.num)).size;
- document.getElementById('stats').innerHTML=[[a,"Active Players"],[db.players.length,"Total Players"],[mo,"Men # Taken"],[wo,"Women # Taken"],[db.players.filter(p=>p.order==="Ordered").length,"Jerseys Ordered"],[db.players.filter(p=>p.order==="Received").length,"Jerseys Received"],[db.players.filter(p=>p.membership==="Paid").length,"Memberships Paid"],[db.players.filter(p=>p.tournament==="Yes"&&p.status==="Active").length,"Tournament Roster"]].map(x=>'<div class="card"><div class="big">'+x[0]+'</div><div class="small">'+x[1]+'</div></div>').join('');
- const q=(document.getElementById('search').value||'').toLowerCase(), tf=document.getElementById('teamFilter').value;
- const ps=db.players.filter(p=>(tf==="All"||p.team===tf)&&p.name.toLowerCase().includes(q));
- document.getElementById('playersBody').innerHTML=ps.map(p=>'<tr><td><b>'+esc(p.name)+'</b></td><td>'+p.team+'</td><td>#'+(p.num||'—')+'</td><td>'+badge(p.status)+'</td><td>'+(p.size||'—')+'</td><td>'+badge(p.membership||'Unpaid')+'</td><td>'+badge(p.tournament||'No')+'</td><td>'+badge(p.order)+'</td><td><button class="btn" onclick="edit('+p.id+')">Edit</button></td></tr>').join('')||'<tr><td colspan="9">No players found.</td></tr>';
- const team=document.getElementById('numTeam').value, taken=new Map(db.players.filter(p=>p.team===team&&p.num).map(p=>[p.num,p]));
- document.getElementById('numbersGrid').innerHTML=Array.from({length:99},(_,i)=>{let n=i+1,p=taken.get(n);if(onlyFree&&p)return '';return '<button class="num '+(p?(p.status==="Reserved"?"reserved":"taken"):"free")+'" onclick="'+(p?'edit('+p.id+')':'quickAssign('+n+')')+'"><b>#'+n+'</b><span>'+(p?esc(p.name):'AVAILABLE')+'</span></button>'}).join('')||'<div style="grid-column:1/-1;color:#999;padding:20px">No available numbers.</div>';
- const of=document.getElementById('orderFilter').value, os=db.players.filter(p=>of==="All"||p.order===of);
- document.getElementById('ordersBody').innerHTML=os.map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+p.team+'</td><td>#'+(p.num||'—')+'</td><td>'+(p.size||'—')+'</td><td>'+badge(p.order)+'</td><td><button class="btn" onclick="cycleOrder('+p.id+')">Update</button></td></tr>').join('')||'<tr><td colspan="6">No orders found.</td></tr>';
-}
-function fillNumbers(current,team){
- const taken=new Set(db.players.filter(p=>p.team===team&&p.num&&p.id!==editing).map(p=>p.num));
- document.getElementById('pNum').innerHTML='<option value="">No number</option>'+Array.from({length:99},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(String(n)===String(current||'')?'selected':'')+' '+(taken.has(n)?'disabled':'')+'>#'+n+(taken.has(n)?' — TAKEN':'')+'</option>').join('');
-}
-function openPlayer(p=null){
- editing=p?.id||null;document.getElementById('dialogTitle').textContent=p?'Edit Player':'Add Player';
- document.getElementById('pName').value=p?.name||'';document.getElementById('pTeam').value=p?.team||'Men';document.getElementById('pStatus').value=p?.status||'Active';document.getElementById('pSize').value=p?.size||'';document.getElementById('pMembership').value=p?.membership||'Unpaid';document.getElementById('pTournament').value=p?.tournament||'Yes';document.getElementById('pOrder').value=p?.order||'Not Ordered';fillNumbers(p?.num,'Men'===document.getElementById('pTeam').value?'Men':'Women');document.getElementById('playerDialog').showModal();
-}
-function edit(id){openPlayer(db.players.find(p=>p.id===id))}
-function quickAssign(n){const team=document.getElementById('numTeam').value;openPlayer({team,num:n,status:'Active',membership:'Unpaid',tournament:'Yes',order:'Not Ordered'})}
-document.getElementById('addTop').onclick=()=>openPlayer();
-document.getElementById('addPlayer').onclick=()=>openPlayer();
-document.getElementById('pTeam').onchange=()=>fillNumbers('',document.getElementById('pTeam').value);
-document.getElementById('savePlayer').onclick=(e)=>{
- e.preventDefault();const name=document.getElementById('pName').value.trim();if(!name)return;
- const team=document.getElementById('pTeam').value,num=Number(document.getElementById('pNum').value)||null;
- const conflict=db.players.find(p=>p.team===team&&p.num===num&&p.id!==editing);if(num&&conflict){alert("That jersey number is already taken by "+conflict.name+".");return}
- const data={name,team,num,status:document.getElementById('pStatus').value,size:document.getElementById('pSize').value,membership:document.getElementById('pMembership').value,tournament:document.getElementById('pTournament').value,order:document.getElementById('pOrder').value};
- if(editing){Object.assign(db.players.find(p=>p.id===editing),data)}else{data.id=Date.now();db.players.push(data)}
- save();document.getElementById('playerDialog').close();render();location.hash='#players';
-};
-function cycleOrder(id){let p=db.players.find(x=>x.id===id);p.order=p.order==="Not Ordered"?"Ordered":p.order==="Ordered"?"Received":"Not Ordered";save();render()}
-document.getElementById('search').oninput=render;document.getElementById('teamFilter').onchange=render;document.getElementById('numTeam').onchange=()=>{onlyFree=false;render()};document.getElementById('availableBtn').onclick=()=>{onlyFree=true;render()};document.getElementById('allBtn').onclick=()=>{onlyFree=false;render()};
-document.getElementById('exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.download='DTHC-roster-backup.json';a.click()};
-render();
-</script>
-</body></html>
+const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXe2');let editing=null;
+const $=x=>document.getElementById(x);
+function showView(v){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(v).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));if(v==='dashboard')loadStats();if(v==='men'||v==='women')loadTeam(v==='men'?'Men':'Women');if(v==='orders')loadOrders()}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+async function auth(){let {data}=await sb.auth.getSession();$('login').classList.toggle('active',!data.session);$('app').classList.toggle('active',!!data.session);if(data.session)showView('dashboard')}
+$('signIn').onclick=async()=>{let {error}=await sb.auth.signInWithPassword({email:$('email').value,password:$('password').value});$('authMsg').textContent=error?.message||'Signed in';auth()};
+$('signUp').onclick=async()=>{let {error}=await sb.auth.signUp({email:$('email').value,password:$('password').value});$('authMsg').textContent=error?.message||'Account created. Check your email.'};
+$('logout').onclick=async()=>{await sb.auth.signOut();auth()};
+async function loadStats(){let {data:p}=await sb.from('players').select('*');let {data:o}=await sb.from('jersey_orders').select('*');p=p||[];o=o||[];let nums=(t)=>99-new Set(p.filter(x=>x.team===t&&x.jersey_number).map(x=>x.jersey_number)).size;$('stats').innerHTML=[[p.filter(x=>x.status==='Active').length,'Active Players'],[p.filter(x=>x.membership_status==='Paid').length,'Memberships Paid'],[p.filter(x=>x.membership_status==='Unpaid').length,'Outstanding Memberships'],[o.filter(x=>x.order_status==='Not Ordered').length,'Jerseys Needing Orders'],[o.filter(x=>x.order_status==='Received').length,'Jerseys Received'],[p.filter(x=>x.tournament_roster&&x.status==='Active').length,'Tournament Roster'],[nums('Men'),'Men Numbers Available'],[nums('Women'),'Women Numbers Available']].map(x=>'<div class="card"><div class="big">'+x[0]+'</div><div class="muted">'+x[1]+'</div></div>').join('')}
+async function loadTeam(team){let {data:p,error}=await sb.from('players').select('*').eq('team',team).order('jersey_number',{ascending:true,nullsFirst:false});if(error)return alert(error.message);let body=(p||[]).map(x=>'<tr><td>'+x.name+'</td><td>#'+(x.jersey_number||'—')+'</td><td>'+(x.position||'—')+'</td><td>'+x.status+'</td><td>'+(x.shirt_size||'—')+'</td><td>'+x.membership_status+'</td><td>'+(x.tournament_roster?'Yes':'No')+'</td><td><button class="btn" onclick="editPlayer(\''+x.id+'\')">Edit</button> <button class="btn" onclick="deletePlayer(\''+x.id+'\')">Delete</button></td></tr>').join('');$(team==='Men'?'menRoster':'womenRoster').innerHTML='<table><thead><tr><th>Name</th><th>#</th><th>Position</th><th>Status</th><th>Size</th><th>Membership</th><th>Tournament</th><th></th></tr></thead><tbody>'+body+'</tbody></table>';renderNumbers(team,p||[])}
+function renderNumbers(team,p){let taken=new Map(p.filter(x=>x.jersey_number).map(x=>[x.jersey_number,x]));$(team==='Men'?'menNumbers':'womenNumbers').innerHTML='<div class="actions"><button class="btn" onclick="toggleNumbers(\''+team+'\')">Hide Numbers</button></div><div class="grid">'+Array.from({length:99},(_,i)=>{let n=i+1,x=taken.get(n);return '<button class="num '+(x?(x.status==='Reserved'?'reserved':'taken'):'free')+'" onclick="'+(x?'editPlayer(\''+x.id+'\')':'addNumber(\''+team+'\','+n+')')+'"><b>#'+n+'</b><span>'+(x?x.name:'AVAILABLE')+'</span></button>'}).join('')+'</div>'}
+function toggleNumbers(t){let e=$(t==='Men'?'menNumbers':'womenNumbers');e.style.display=e.style.display==='none'?'block':'none'}
+function addNumber(team,n){openModal({team,jersey_number:n,status:'Active',membership_status:'Unpaid',tournament_roster:false})}
+function addPlayer(team){openModal({team})}
+async function editPlayer(id){let {data}=await sb.from('players').select('*').eq('id',id).single();openModal(data)}
+function openModal(p){editing=p?.id||null;$('modalTitle').textContent=editing?'Edit Player':'Add Player';$('pName').value=p?.name||'';$('pTeam').value=p?.team||'Men';$('pPhone').value=p?.phone||'';$('pEmail').value=p?.email||'';$('pPosition').value=p?.position||'';$('pSize').value=p?.shirt_size||'';$('pStatus').value=p?.status||'Active';$('pMembership').value=p?.membership_status||'Unpaid';$('pTournament').value=String(p?.tournament_roster||false);fillNums(p?.jersey_number);$('modal').classList.add('open')}
+async function fillNums(cur){let {data}=await sb.from('players').select('id,jersey_number').eq('team',$('pTeam').value);let taken=new Set((data||[]).filter(x=>x.id!==editing&&x.jersey_number).map(x=>x.jersey_number));$('pNum').innerHTML='<option value="">No number</option>'+Array.from({length:99},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(n===cur?'selected':'')+' '+(taken.has(n)?'disabled':'')+'>#'+n+(taken.has(n)?' — TAKEN':'')+'</option>').join('')}
+$('pTeam').onchange=()=>fillNums();function closeModal(){$('modal').classList.remove('open');editing=null}
+async function savePlayer(){let name=$('pName').value.trim();if(!name){alert('Name is required. Tap Cancel to close without saving.');return}let payload={name,team:$('pTeam').value,phone:$('pPhone').value,email:$('pEmail').value,position:$('pPosition').value,jersey_number:Number($('pNum').value)||null,shirt_size:$('pSize').value,status:$('pStatus').value,membership_status:$('pMembership').value,tournament_roster:$('pTournament').value==='true'};let r=editing?await sb.from('players').update(payload).eq('id',editing):await sb.from('players').insert(payload);if(r.error)alert(r.error.message);else{closeModal();showView(payload.team==='Men'?'men':'women')}}
+async function deletePlayer(id){if(confirm('Delete this player and their jersey orders?')){let r=await sb.from('players').delete().eq('id',id);if(r.error)alert(r.error.message);else showView('men')}}
+async function loadOrders(){let {data}=await sb.from('jersey_orders').select('*,players(name,team)').order('created_at',{ascending:false});$('ordersTable').innerHTML='<table><thead><tr><th>Player</th><th>Team</th><th>Size</th><th>#</th><th>Status</th><th>Delivered</th><th>Order Date</th></tr></thead><tbody>'+(data||[]).map(o=>'<tr><td>'+(o.players?.name||'')+'</td><td>'+(o.players?.team||'')+'</td><td>'+(o.size||'—')+'</td><td>#'+(o.jersey_number||'—')+'</td><td>'+o.order_status+'</td><td>'+(o.delivered?'Yes':'No')+'</td><td>'+(o.order_date||'—')+'</td></tr>').join('')+'</tbody></table>'}
+auth();
+</script></body></html>
