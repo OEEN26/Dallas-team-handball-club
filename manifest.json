@@ -1,0 +1,18 @@
+{
+  "name": "Dallas THC Club Manager",
+  "short_name": "Dallas THC",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090909",
+  "theme_color": "#19c957",
+  "description": "Dallas Team Handball Club roster and jersey manager.",
+  "icons": [
+    {
+      "src": "./Dallas-thc-logo.png.JPG",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
