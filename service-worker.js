@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dallas-thc-v2';
+const CACHE_NAME = 'dallas-thc-v3';
 const APP_SHELL = ['./manifest.json', './Dallas-thc-logo.png.JPG'];
 
 self.addEventListener('install', event => {
@@ -18,8 +18,9 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/Dallas-team-handball-club/')) {
-    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+  const isHtmlPage = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/Dallas-team-handball-club/');
+  if (isHtmlPage) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request)));
     return;
   }
 
