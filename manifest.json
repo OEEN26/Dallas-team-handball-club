@@ -4,9 +4,17 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#090909",
   "theme_color": "#19c957",
-  "description": "Dallas Team Handball Club roster and jersey manager.",
+  "description": "Dallas Team Handball Club management app for rosters, events, attendance, memberships and tournaments.",
+  "categories": ["sports", "productivity"],
+  "shortcuts": [
+    {"name":"Club Hub","short_name":"Club Hub","url":"./club-hub.html"},
+    {"name":"Events","short_name":"Events","url":"./events.html"},
+    {"name":"Player Dashboard","short_name":"Players","url":"./player-dashboard.html"}
+  ],
   "icons": [
     {
       "src": "./Dallas-thc-logo.png.JPG",
