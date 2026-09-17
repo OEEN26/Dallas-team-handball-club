@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>System Logs • Dallas THC</title><style>
+*{box-sizing:border-box}body{margin:0;background:#090e0b;color:#f2f8f3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#101611;border-bottom:1px solid #24452d}.bar{max-width:1180px;margin:auto;display:flex;align-items:center;padding:12px 16px}.brand{font-weight:900}.brand span{color:#00c853}
+main{max-width:950px;margin:auto;padding:28px 16px 70px}h1{margin:0 0 7px}.muted{color:#9bb3a2;font-size:13px;line-height:1.5}
+.card{background:#141e16;border:1px solid #31513b;border-radius:12px;padding:15px;margin-top:12px;overflow-wrap:anywhere}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.tag{border-radius:16px;background:#1d482a;color:#9cf4b8;font-size:11px;padding:6px 9px}
+select{background:#16251b;color:#fff;border:1px solid #426348;border-radius:8px;padding:8px}select:focus-visible{outline:2px solid #00c853}
+</style></head><body><header><div class="bar"><div class="brand">Dallas <span>THC</span></div></div></header>
+<main><h1>System Logs</h1><p class="muted">Recent admin activity and technical issues. Only admins can open this page.</p>
+<label for="filter">Show</label> <select id="filter"><option value="all">All logs</option><option value="activity">Admin activity</option><option value="technical">Technical issues</option></select>
+<p id="status" class="muted" role="status">Loading logs…</p><div id="list"></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+(async()=>{const client=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
+const $=id=>document.getElementById(id);const {data:{session}}=await client.auth.getSession();if(!session){location.replace('./index.html');return}
+const {data:me,error:roleError}=await client.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
+if(roleError||me?.role!=='admin'){$('status').textContent='Admin access is required to view logs.';return}
+let logs=[];const {data,error}=await client.from('system_logs').select('created_at,kind,event,resource,record_id,changed_fields,route').order('created_at',{ascending:false}).limit(100);
+if(error){$('status').textContent='Unable to load logs: '+error.message;return}logs=data||[];
+const render=()=>{const filtered=logs.filter(x=>$('filter').value==='all'||x.kind===$('filter').value);$('status').textContent=filtered.length+' log'+(filtered.length===1?'':'s')+' shown';
+const list=$('list');list.replaceChildren();for(const item of filtered){const card=document.createElement('article');card.className='card';
+const row=document.createElement('div');row.className='row';const strong=document.createElement('strong');strong.textContent=item.event||'Activity';
+const tag=document.createElement('span');tag.className='tag';tag.textContent=item.kind||'Log';row.append(strong,tag);
+const details=document.createElement('p');details.className='muted';details.textContent=[new Date(item.created_at).toLocaleString(),item.resource,item.route,item.changed_fields?.length?'Changed: '+item.changed_fields.join(', '):''].filter(Boolean).join(' · ');
+card.append(row,details);list.append(card)}};
+$('filter').onchange=render;render();
+})().catch(()=>{document.getElementById('status').textContent='Unable to load logs. Please try again.'});
+</script><script defer src="./header.js"></script></body></html>
