@@ -19,9 +19,11 @@
     ['Event Management', 'events.html'],
     ['Jersey Approvals', 'jersey-approvals.html'],
     ['Tournament Readiness', 'event-readiness.html'],
-    ['Reports', 'admin-operations.html?tab=overview'],
+    ['Reports', 'admin-operations.html?tab=overview#stats'],
     ['Event Attendance', 'event-attendance.html'],
-    ['Team Rosters', 'admin-team-profiles.html?team=Men']
+    ['Men’s Roster', 'admin-team-profiles.html?team=Men'],
+    ['Women’s Roster', 'admin-team-profiles.html?team=Women'],
+    ['Player View', 'admin-player-dashboard.html']
   ];
   const adminOnly = [
     ['Admin Management', 'admin-management.html'],
@@ -33,8 +35,9 @@
     if (name === 'admin-content.html') return name + (u.hash === '#practices' ? '#practices' : '#announcements');
     if (name === 'club-hub.html' || name === 'admin-operations.html') {
       const tab = u.searchParams.get('tab') || (name === 'admin-operations.html' ? 'overview' : 'schedule');
-      return name + '?tab=' + tab;
+      return name + '?tab=' + tab + (name === 'admin-operations.html' && u.hash === '#stats' ? '#stats' : '');
     }
+    if (name === 'admin-team-profiles.html') return name + '?team=' + (u.searchParams.get('team') || 'Men');
     return name;
   };
   const currentLabel = (items) => {
