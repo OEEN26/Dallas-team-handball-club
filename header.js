@@ -6,7 +6,7 @@
   const fallback = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#153d25"/><circle cx="32" cy="25" r="11" fill="#00c853"/><path d="M12 55c2-13 10-20 20-20s18 7 20 20" fill="#00c853"/></svg>');
   const common = isAdmin => [
     ['Dashboard', isAdmin ? 'index.html' : 'player-dashboard.html'],
-    ['Profile', 'profile-settings.html'],
+    ['Profile Settings', 'profile-settings.html'],
     ['Events', 'events.html'],
     ['Tournaments', isAdmin ? 'admin-operations.html?tab=tournaments' : 'club-hub.html?tab=tournaments'],
     ['Membership', 'club-hub.html?tab=membership']
@@ -94,7 +94,9 @@
       const {data:profile,error:roleError} = await client.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
       if (roleError || !profile) return;
       const isAdmin = profile.role === 'admin' || profile.role === 'manager';
+      const {data:player} = await client.from('player_directory_public').select('id,profile_photo_url').eq('user_id',session.user.id).maybeSingle();
       const groups = [['Navigate',common(isAdmin)]];
+      if (player?.id) groups[0][1].splice(1,0,['Profile','player.html']);
       if (isAdmin) groups.push(['Manage Club',admin]);
       if (profile.role === 'admin') groups.push(['Admin',adminOnly]);
       const items = groups.flatMap(([,links]) => links);
@@ -128,7 +130,6 @@
         location.href = path('index.html');
       };
       menu.append(logout);
-      const {data:player} = await client.from('player_directory_public').select('profile_photo_url').eq('user_id',session.user.id).maybeSingle();
       avatar.src = player?.profile_photo_url || fallback;
       host.hidden = false;
       document.body.classList.add('club-header-ready');
