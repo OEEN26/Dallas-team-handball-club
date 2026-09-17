@@ -29,4 +29,4 @@ function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':
 $('uploadGallery').onclick=async()=>{const f=$('galleryFile').files[0];if(!f){$('galleryMsg').textContent='Choose a photo first.';return}try{$('galleryMsg').textContent='Uploading…';const url=await uploadFile(f,'gallery');const {error}=await sb.from('player_gallery').insert({player_id:player.id,user_id:user.id,image_url:url,caption:$('galleryCaption').value.trim()||null});if(error)throw error;$('galleryFile').value='';$('galleryCaption').value='';$('galleryMsg').textContent='Photo added.';await loadGallery()}catch(e){$('galleryMsg').textContent=e.message||String(e)}};
 async function deleteGallery(id){if(!confirm('Remove this photo from your gallery?'))return;const {error}=await sb.from('player_gallery').delete().eq('id',id);if(error){$('galleryMsg').textContent=error.message;return}await loadGallery()}
 $('logout').onclick=async()=>{await sb.auth.signOut();location.href='./'};boot();
-</script></body></html>
+</script><script defer src="./header.js"></script></body></html>
