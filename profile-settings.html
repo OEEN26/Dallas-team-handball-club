@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profile • Dallas THC</title><style>
+*{box-sizing:border-box}body{margin:0;background:#090e0b;color:#f2f8f3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#101611;border-bottom:1px solid #24452d}.bar{max-width:1180px;margin:auto;display:flex;align-items:center;padding:12px 16px}.brand{font-weight:900}.brand span{color:#00c853}
+main{max-width:760px;margin:0 auto;padding:28px 16px 80px}h1{margin:0 0 8px}p{color:#9cb5a4;line-height:1.5}
+.card{background:#131e16;border:1px solid #31513b;border-radius:14px;padding:20px;margin-top:16px}
+.row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.photo{width:74px;height:74px;border-radius:50%;object-fit:cover;background:#153d25}
+a{color:#9cf4b8}label{display:block;margin:16px 0 5px;font-size:12px;color:#a7c8b0}input{width:100%;padding:12px;border-radius:8px;border:1px solid #3e6a4b;background:#0d150f;color:#fff;font:inherit}
+button,.action{display:inline-block;border:1px solid #00c853;border-radius:8px;background:#00c853;color:#08220d;font:700 14px/1.4 inherit;padding:10px 14px;text-decoration:none;cursor:pointer;margin-top:14px}
+.action.secondary{background:#1d3423;color:#d8f6df}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #00c853;outline-offset:3px}
+</style></head><body><header><div class="bar"><div class="brand">Dallas <span>THC</span></div></div></header>
+<main><h1>Profile settings</h1><p>Manage your account name and open your player profile.</p>
+<div id="status" class="card" role="status">Loading your account…</div>
+<section id="account" class="card" hidden><div class="row"><img id="photo" class="photo" alt="Your profile photo"><div><strong id="display-name"></strong><p id="email"></p></div></div>
+<label for="full-name">Display name</label><input id="full-name" maxlength="120" autocomplete="name">
+<button id="save" type="button">Save name</button><p id="message" role="status"></p>
+<a class="action secondary" href="./player.html">Edit player details and photo</a></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async()=>{const client=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
+const $=id=>document.getElementById(id);const {data:{session},error}=await client.auth.getSession();
+if(error||!session){location.replace('./index.html');return}
+const {data:profile,error:readError}=await client.from('profiles').select('full_name,role').eq('id',session.user.id).maybeSingle();
+if(readError||!profile){$('status').textContent='Could not load your account. Please refresh and try again.';return}
+const {data:player}=await client.from('player_directory_public').select('profile_photo_url').eq('user_id',session.user.id).maybeSingle();
+$('display-name').textContent=profile.full_name||'Club member';$('email').textContent=session.user.email||'';
+$('full-name').value=profile.full_name||'';$('photo').src=player?.profile_photo_url||'./Dallas-thc-logo.png.JPG';
+if(!player)document.querySelector('.action.secondary').hidden=true;
+$('status').hidden=true;$('account').hidden=false;
+$('save').onclick=async()=>{const full_name=$('full-name').value.trim();if(!full_name){$('message').textContent='Enter your name first.';return}
+$('save').disabled=true;const {error:saveError}=await client.from('profiles').update({full_name}).eq('id',session.user.id);
+$('save').disabled=false;$('message').textContent=saveError?'Unable to save: '+saveError.message:'Name saved.';if(!saveError)$('display-name').textContent=full_name;
+};
+})().catch(()=>{document.getElementById('status').textContent='Could not load your account. Please try again.'});
+</script><script defer src="./header.js"></script></body></html>
