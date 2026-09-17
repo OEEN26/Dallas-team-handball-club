@@ -1,0 +1,21 @@
+body.club-header-ready > header,body > header.club-created-header{position:sticky!important;top:0!important;z-index:1000!important;background:#101611!important;border-bottom:1px solid #24452d!important}
+body.club-header-ready > header .bar,body > header.club-created-header .bar{display:flex;align-items:center;max-width:1180px;min-height:62px;margin:auto;gap:12px;padding:9px 14px}
+body.club-header-ready > header .bar > :not(.brand):not(#club-shared-nav){display:none!important}
+body > header.club-created-header .brand{color:#f5f5f5;font-weight:900}body > header.club-created-header .brand span{color:#00c853}
+#club-shared-nav{margin-left:auto;display:flex;align-items:center;gap:14px;position:relative;flex-shrink:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#club-shared-nav[hidden],#club-profile-menu[hidden]{display:none!important}
+#club-shared-nav .club-current-page{color:#aedbbc;font-size:12px;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#club-shared-nav .club-avatar-button{width:51px;height:43px;display:flex;align-items:center;justify-content:center;gap:2px;border-radius:24px;padding:3px;background:#183621;color:#c9f5d4;border:1px solid #388755;cursor:pointer}
+#club-shared-nav .club-avatar-button:hover,#club-shared-nav .club-avatar-button[aria-expanded=true]{border-color:#00c853;background:#224d30}
+#club-shared-nav .club-avatar{width:33px;height:33px;border-radius:50%;object-fit:cover;background:#153d25}
+#club-shared-nav button:focus-visible,#club-shared-nav a:focus-visible{outline:2px solid #00c853;outline-offset:2px}
+#club-profile-menu{position:absolute;right:0;top:calc(100% + 9px);z-index:2000;width:min(320px,calc(100vw - 28px));max-height:min(75vh,650px);overflow:auto;overscroll-behavior:contain;padding:8px;background:#111b15;color:#eef8f0;border:1px solid #356545;border-radius:14px;box-shadow:0 18px 45px #000b}
+#club-profile-menu .club-menu-identity{padding:10px 12px 13px;border-bottom:1px solid #31513a;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+#club-profile-menu .club-menu-identity strong{font-size:14px}
+#club-profile-menu .club-menu-identity small{color:#9db9a3;font-size:12px}
+#club-profile-menu .club-menu-section{padding:8px 0;border-bottom:1px solid #263b2d}
+#club-profile-menu .club-menu-heading{display:block;color:#88a78f;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;padding:6px 12px}
+#club-profile-menu a,#club-profile-menu .club-menu-logout{display:block;width:100%;box-sizing:border-box;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:#eff7f0;text-decoration:none;font:600 13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:left;cursor:pointer}
+#club-profile-menu a:hover,#club-profile-menu .club-menu-logout:hover{background:#20432c;color:#b4ffca}
+#club-profile-menu a[aria-current=page]{background:#123d23;color:#83ffac;border-left:3px solid #00c853}
+@media(max-width:560px){#club-shared-nav .club-current-page{display:none}body.club-header-ready > header .bar .brand{min-width:0}body.club-header-ready > header .bar .brand .muted{font-size:10px}}
