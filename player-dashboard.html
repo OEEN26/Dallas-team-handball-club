@@ -79,7 +79,7 @@ function activityCard(type,item){
   const label=type==='practice'?'NEXT PRACTICE':'NEXT EVENT';
   if(!item)return '<p class="eyebrow">'+label+'</p><div class="empty">Nothing scheduled yet.</div><a class="btn" href="'+(type==='practice'?'./club-hub.html?tab=schedule':'./events.html')+'">Open '+(type==='practice'?'schedule':'events')+'</a>';
   const date=item.practice_date||item.event_date,existing=currentResponse(type,item.id);
-  return '<p class="eyebrow">'+label+'</p><div class="date">'+formatDate(date)+'</div><h3>'+esc(item.title)+'</h3><div class="muted meta">'+esc(item.team||'All')+(item.start_time?' • '+esc(item.start_time.slice(0,5)):'')+(item.location?' • '+esc(item.location):'')+'</div>'+rsvpButtons(type,item.id,existing);
+  return '<p class="eyebrow">'+label+'</p><div class="date">'+formatDate(date)+'</div><h3>'+esc(item.title)+'</h3><div class="muted meta">'+esc(item.team||'All')+(item.start_time?' • '+esc(item.start_time.slice(0,5)):'')+(item.location?' • '+esc(item.location):'')+(item.address?' • '+esc(item.address):'')+'</div>'+(item.notes?'<div class="muted" style="margin-bottom:10px">'+esc(item.notes)+'</div>':'')+rsvpButtons(type,item.id,existing);
 }
 async function boot(){
   const auth=await sb.auth.getSession();currentSession=auth.data.session;if(!currentSession){location.replace('./index.html');return}
@@ -89,7 +89,7 @@ async function boot(){
   const [account,announcements,practices,events,roster,claims,rsvpRows,tournaments,tournamentRows]=await Promise.all([
     sb.from('players').select('membership_status,shirt_size,status').eq('id',currentPlayer.id).maybeSingle(),
     sb.from('club_announcements').select('*').in('audience',['All',currentPlayer.team]).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(6),
-    sb.from('practices').select('*').in('team',['All',currentPlayer.team]).gte('practice_date',today()).order('practice_date').order('start_time').limit(4),
+    sb.from('practices').select('*').in('team',['All',currentPlayer.team]).eq('canceled',false).gte('practice_date',today()).order('practice_date').order('start_time').limit(4),
     sb.from('club_events').select('*').in('team',['All',currentPlayer.team]).gte('event_date',today()).order('event_date').order('start_time').limit(4),
     sb.from('player_directory_public').select('*').eq('status','Active').order('name'),
     sb.from('jersey_claims').select('*').eq('player_id',currentPlayer.id).order('updated_at',{ascending:false}).limit(1),
