@@ -163,7 +163,7 @@
       const languageSelect = document.createElement('select');
       languageSelect.id = 'club-language-select';
       languageSelect.className = 'club-language-select';
-      languageSelect.innerHTML = '<option value="en">English</option><option value="es">Español</option>';
+      languageSelect.innerHTML = '<option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="uk">Українська</option><option value="pl">Polski</option><option value="no">Norsk</option><option value="hi">हिन्दी</option><option value="tr">Türkçe</option><option value="ar">العربية</option><option value="pt">Português</option>';
       languageSelect.value = profile.preferred_language || 'en';
       languageSelect.addEventListener('change', async () => {
         const next = languageSelect.value;
