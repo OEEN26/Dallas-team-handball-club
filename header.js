@@ -49,6 +49,36 @@
       'admin-team-profiles.html':'Team Rosters'
     }[key.split('?')[0]] || 'Club Page');
   };
+  const dockItems = isAdmin => isAdmin ? [
+    ['⌂','Home','index.html','home'],
+    ['♟','Players','player-management.html','players'],
+    ['◷','Schedule','admin-content.html#practices','schedule'],
+    ['🏆','Tournaments','admin-operations.html?tab=tournaments','tournaments'],
+    ['⚙','Operations','admin-operations.html?tab=overview','operations']
+  ] : [
+    ['⌂','Home','player-dashboard.html','home'],
+    ['◷','Schedule','club-hub.html?tab=schedule','schedule'],
+    ['★','Events','events.html','events'],
+    ['🏆','Tournaments','club-hub.html?tab=tournaments','tournaments'],
+    ['●','Profile','player.html','profile']
+  ];
+  const activeDockSection = isAdmin => {
+    const key = pageKey(location.href);
+    const page = key.split(/[?#]/)[0];
+    if (!isAdmin) {
+      if (page === 'player-dashboard.html') return 'home';
+      if (key === 'club-hub.html?tab=schedule') return 'schedule';
+      if (page === 'events.html') return 'events';
+      if (key === 'club-hub.html?tab=tournaments') return 'tournaments';
+      if (page === 'player.html' || page === 'profile-settings.html') return 'profile';
+      return '';
+    }
+    if (page === 'index.html') return 'home';
+    if (['player-management.html','admin-team-profiles.html'].includes(page)) return 'players';
+    if (page === 'admin-content.html' || page === 'events.html' || page === 'event-attendance.html') return 'schedule';
+    if (key === 'admin-operations.html?tab=tournaments' || page === 'event-readiness.html') return 'tournaments';
+    return 'operations';
+  };
 
   function start() {
     if (!window.supabase || !document.body || document.getElementById('club-shared-nav')) return;
@@ -68,18 +98,10 @@
     host.hidden = true;
     host.innerHTML = '<span class="club-current-page"></span><button class="club-avatar-button" type="button" aria-label="Open profile menu" aria-haspopup="true" aria-expanded="false" aria-controls="club-profile-menu"><img class="club-avatar" alt="" /><span aria-hidden="true">⌄</span></button><nav id="club-profile-menu" aria-label="Club and account navigation" hidden></nav>';
     bar.append(host);
-    const playerDock = document.createElement('nav');
-    playerDock.id = 'club-player-dock';
-    playerDock.setAttribute('aria-label','Player navigation');
-    playerDock.hidden = true;
-    playerDock.innerHTML = [
-      ['⌂','Home','player-dashboard.html'],
-      ['◷','Schedule','club-hub.html?tab=schedule'],
-      ['★','Events','events.html'],
-      ['🏆','Tournaments','club-hub.html?tab=tournaments'],
-      ['●','Profile','player.html']
-    ].map(([icon,label,url])=>'<a href="'+path(url)+'"><span aria-hidden="true">'+icon+'</span><small>'+label+'</small></a>').join('');
-    document.body.append(playerDock);
+    const roleDock = document.createElement('nav');
+    roleDock.id = 'club-role-dock';
+    roleDock.hidden = true;
+    document.body.append(roleDock);
     const button = host.querySelector('button');
     const menu = host.querySelector('nav');
     const avatar = host.querySelector('img');
@@ -102,7 +124,7 @@
     const client = window.supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co', 'sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
     const render = async () => {
       const {data:{session},error} = await client.auth.getSession();
-      if (error || !session) { close();host.hidden = true;playerDock.hidden=true;document.body.classList.remove('club-header-ready','club-player-dock-ready');return; }
+      if (error || !session) { close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready');return; }
       const {data:profile,error:roleError} = await client.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
       if (roleError || !profile) return;
       const isAdmin = profile.role === 'admin' || profile.role === 'manager';
@@ -145,18 +167,21 @@
       avatar.src = player?.profile_photo_url || fallback;
       host.hidden = false;
       document.body.classList.add('club-header-ready');
-      const showDock=!isAdmin&&!!player?.id;
-      playerDock.hidden=!showDock;
-      document.body.classList.toggle('club-player-dock-ready',showDock);
-      for(const link of playerDock.querySelectorAll('a')){
-        if(pageKey(link.href)===key)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+      const showDock=isAdmin||!!player?.id;
+      roleDock.setAttribute('aria-label',isAdmin?'Admin navigation':'Player navigation');
+      roleDock.innerHTML=dockItems(isAdmin).map(([icon,text,url,section])=>'<a href="'+path(url)+'" data-section="'+section+'"><span aria-hidden="true">'+icon+'</span><small>'+text+'</small></a>').join('');
+      roleDock.hidden=!showDock;
+      document.body.classList.toggle('club-role-dock-ready',showDock);
+      const activeSection=activeDockSection(isAdmin);
+      for(const link of roleDock.querySelectorAll('a')){
+        if(link.dataset.section===activeSection)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
       }
     };
     window.addEventListener('popstate', () => render().catch(() => {}));
     window.addEventListener('hashchange', () => render().catch(() => {}));
     window.addEventListener('club:routechange', () => render().catch(() => {}));
     client.auth.onAuthStateChange(event => {
-      if (event === 'SIGNED_OUT') { close();host.hidden = true;playerDock.hidden=true;document.body.classList.remove('club-header-ready','club-player-dock-ready'); }
+      if (event === 'SIGNED_OUT') { close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready'); }
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') setTimeout(() => render().catch(() => {}), 0);
     });
     render().catch(() => {});
