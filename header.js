@@ -4,6 +4,15 @@
   const root = new URL('./', document.currentScript?.src || location.href);
   const path = name => new URL(name, root).href;
   const fallback = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#153d25"/><circle cx="32" cy="25" r="11" fill="#00c853"/><path d="M12 55c2-13 10-20 20-20s18 7 20 20" fill="#00c853"/></svg>');
+  const ensureI18n = () => {
+    if (window.clubI18n || document.querySelector('script[data-club-i18n]')) return;
+    const script = document.createElement('script');
+    script.src = path('i18n.js');
+    script.defer = true;
+    script.dataset.clubI18n = 'true';
+    document.head.append(script);
+  };
+  ensureI18n();
   const common = isAdmin => [
     ['Dashboard', isAdmin ? 'index.html' : 'player-dashboard.html'],
     ['Profile Settings', 'profile-settings.html'],
@@ -125,7 +134,7 @@
     const render = async () => {
       const {data:{session},error} = await client.auth.getSession();
       if (error || !session) { close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready');return; }
-      const {data:profile,error:roleError} = await client.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
+      const {data:profile,error:roleError} = await client.from('profiles').select('role,full_name,preferred_language').eq('id',session.user.id).maybeSingle();
       if (roleError || !profile) return;
       const isAdmin = profile.role === 'admin' || profile.role === 'manager';
       const {data:player} = await client.from('player_directory_public').select('id,profile_photo_url').eq('user_id',session.user.id).maybeSingle();
@@ -145,6 +154,32 @@
       const role = document.createElement('small');
       role.textContent = isAdmin ? (profile.role === 'admin' ? 'Admin' : 'Manager') : 'Player';
       identity.append(name, role); menu.append(identity);
+      const languageSection = document.createElement('div');
+      languageSection.className = 'club-menu-section club-language-section';
+      const languageHeading = document.createElement('label');
+      languageHeading.className = 'club-menu-heading';
+      languageHeading.htmlFor = 'club-language-select';
+      languageHeading.textContent = 'Preferred Language';
+      const languageSelect = document.createElement('select');
+      languageSelect.id = 'club-language-select';
+      languageSelect.className = 'club-language-select';
+      languageSelect.innerHTML = '<option value="en">English</option><option value="es">Español</option>';
+      languageSelect.value = profile.preferred_language || 'en';
+      languageSelect.addEventListener('change', async () => {
+        const next = languageSelect.value;
+        languageSelect.disabled = true;
+        const {error:languageError} = await client.rpc('set_my_preferred_language',{p_language:next});
+        languageSelect.disabled = false;
+        if (languageError) {
+          languageSelect.value = profile.preferred_language || 'en';
+          alert('Could not save language preference. Please try again.');
+          return;
+        }
+        profile.preferred_language = next;
+        window.clubI18n?.setLanguage(next);
+      });
+      languageSection.append(languageHeading, languageSelect);
+      menu.append(languageSection);
       for (const [heading,links] of groups) {
         const section = document.createElement('div');section.className = 'club-menu-section';
         const title = document.createElement('span');title.className = 'club-menu-heading';title.textContent = heading;section.append(title);
@@ -167,6 +202,12 @@
       avatar.src = player?.profile_photo_url || fallback;
       host.hidden = false;
       document.body.classList.add('club-header-ready');
+      const preferredLanguage = profile.preferred_language || 'en';
+      if (window.clubI18n) window.clubI18n.setLanguage(preferredLanguage);
+      else {
+        const languageScript = document.querySelector('script[data-club-i18n]');
+        languageScript?.addEventListener('load', () => window.clubI18n?.setLanguage(preferredLanguage), {once:true});
+      }
       const showDock=isAdmin||!!player?.id;
       roleDock.setAttribute('aria-label',isAdmin?'Admin navigation':'Player navigation');
       roleDock.innerHTML=dockItems(isAdmin).map(([icon,text,url,section])=>'<a href="'+path(url)+'" data-section="'+section+'"><span aria-hidden="true">'+icon+'</span><small>'+text+'</small></a>').join('');
