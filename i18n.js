@@ -156,11 +156,10 @@
 
     for (const attr of ['placeholder','aria-label','title']) {
       if (el.hasAttribute?.(attr)) {
-        const key = attr + ':' + el.getAttribute(attr);
         let map = originals.get(el);
         if (!map) { map = {}; originals.set(el, map); }
-        if (!(key in map)) map[key] = el.getAttribute(attr);
-        const original = map[key];
+        if (!(attr in map)) map[attr] = el.getAttribute(attr);
+        const original = map[attr];
         const next = translateText(original, lang);
         if (el.getAttribute(attr) !== next) el.setAttribute(attr, next);
       }
