@@ -95,7 +95,7 @@
         </details>
         <details class="card quick">
           <summary>Schedule a practice</summary>
-          <div class="form-body"><div class="grid2"><div class="field"><label for="pTitle">Practice name</label><input id="pTitle" value="Dallas THC Practice"></div><div class="field"><label for="pTeam">Team</label><select id="pTeam"><option>All</option><option>Men</option><option>Women</option></select></div><div class="field"><label for="pDate">Date</label><input id="pDate" type="date"></div><div class="field"><label for="pStart">Start time</label><input id="pStart" type="time"></div><div class="field"><label for="pEnd">End time</label><input id="pEnd" type="time"></div><div class="field"><label for="pLocation">Location</label><input id="pLocation" placeholder="Gym or address"></div></div><button class="btn primary" id="createPractice" type="button" style="margin-top:11px">Create Practice</button><div class="msg" id="pMsg" role="status"></div></div>
+          <div class="form-body"><div class="grid2"><div class="field"><label for="pTitle">Practice name</label><input id="pTitle" value="Dallas THC Practice"></div><div class="field"><label for="pTeam">Team</label><select id="pTeam"><option>All</option><option>Men</option><option>Women</option></select></div><div class="field"><label for="pDate">Date</label><input id="pDate" type="date"></div><div class="field"><label for="pStart">Start time</label><input id="pStart" type="time"></div><div class="field"><label for="pEnd">End time</label><input id="pEnd" type="time"></div><div class="field"><label for="pLocation">Location</label><input id="pLocation" placeholder="Gym or address"></div></div><div class="actions" style="margin-top:11px"><button class="btn primary" id="createPractice" type="button">Create One-Time Practice</button><a class="btn" href="./admin-content.html#practices">Recurring, address & edit options →</a></div><div class="msg" id="pMsg" role="status"></div></div>
         </details>
       </div>
       <div class="stack">
@@ -139,7 +139,7 @@ async function loadDashboard(){
   try{
     const results=await Promise.all([
       sb.from('players').select('id,name,team,status,membership_status,jersey_number,shirt_size,position,created_at').is('deleted_at',null).order('created_at',{ascending:false}),
-      sb.from('practices').select('id,title,team,practice_date,start_time,location').gte('practice_date',today).order('practice_date').order('start_time').limit(8),
+      sb.from('practices').select('id,title,team,practice_date,start_time,location,address,canceled').eq('canceled',false).gte('practice_date',today).order('practice_date').order('start_time').limit(8),
       sb.from('club_events').select('id,title,event_type,team,event_date,start_time,location').gte('event_date',today).order('event_date').order('start_time').limit(8),
       sb.from('club_announcements').select('title,body,audience,pinned,created_at').order('created_at',{ascending:false}).limit(1),
       sb.from('jersey_claims').select('id,status').eq('status','Pending Verification'),
