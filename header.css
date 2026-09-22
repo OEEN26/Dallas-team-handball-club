@@ -18,12 +18,12 @@ body > header.club-created-header .brand{color:#f5f5f5;font-weight:900}body > he
 #club-profile-menu a,#club-profile-menu .club-menu-logout{display:block;width:100%;box-sizing:border-box;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:#eff7f0;text-decoration:none;font:600 13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:left;cursor:pointer}
 #club-profile-menu a:hover,#club-profile-menu .club-menu-logout:hover{background:#20432c;color:#b4ffca}
 #club-profile-menu a[aria-current=page]{background:#123d23;color:#83ffac;border-left:3px solid #00c853}
-#club-player-dock{display:none}
+#club-role-dock{display:none}
 @media(max-width:1100px){
-body.club-player-dock-ready{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
-#club-player-dock:not([hidden]){position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:0;right:0;bottom:0;z-index:1900;padding:6px 7px calc(6px + env(safe-area-inset-bottom));background:#101812f2;border-top:1px solid #31513a;box-shadow:0 -8px 26px #0009;backdrop-filter:blur(12px)}
-#club-player-dock a{min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:9px;color:#93aa99;text-decoration:none;font:700 11px/1.1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-#club-player-dock a>span{font-size:18px;line-height:1}#club-player-dock a>small{max-width:100%;overflow:hidden;text-overflow:ellipsis}
-#club-player-dock a[aria-current=page]{background:#153d24;color:#89f5a8}#club-player-dock a:focus-visible{outline:2px solid #00c853;outline-offset:1px}
+body.club-role-dock-ready{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+#club-role-dock:not([hidden]){position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:0;right:0;bottom:0;z-index:1900;padding:6px 7px calc(6px + env(safe-area-inset-bottom));background:#101812f2;border-top:1px solid #31513a;box-shadow:0 -8px 26px #0009;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#club-role-dock a{min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:9px;color:#93aa99;text-decoration:none;font:700 11px/1.1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#club-role-dock a>span{font-size:18px;line-height:1}#club-role-dock a>small{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+#club-role-dock a[aria-current=page]{background:#153d24;color:#89f5a8}#club-role-dock a:focus-visible{outline:2px solid #00c853;outline-offset:1px}
 }
 @media(max-width:560px){#club-shared-nav .club-current-page{display:none}body.club-header-ready > header .bar .brand{min-width:0}body.club-header-ready > header .bar .brand .muted{font-size:10px}}
