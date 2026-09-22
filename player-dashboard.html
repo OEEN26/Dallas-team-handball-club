@@ -86,7 +86,7 @@ async function boot(){
   const uid=currentSession.user.id;
   const publicResult=await sb.from('player_directory_public').select('id,user_id,name,team,position,jersey_number,profile_photo_url').eq('user_id',uid).maybeSingle();
   currentPlayer=publicResult.data;if(!currentPlayer){location.replace('./player.html');return}
-  const [account,announcements,practices,events,roster,claims,rsvpRows,tournaments,tournamentRows]=await Promise.all([
+  const [account,announcements,practices,events,roster,claims,rsvpRows,tournaments,tournamentRows,seasonResult]=await Promise.all([
     sb.from('players').select('membership_status,shirt_size,status').eq('id',currentPlayer.id).maybeSingle(),
     sb.from('club_announcements').select('*').in('audience',['All',currentPlayer.team]).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(6),
     sb.from('practices').select('*').in('team',['All',currentPlayer.team]).eq('canceled',false).gte('practice_date',today()).order('practice_date').order('start_time').limit(4),
@@ -95,10 +95,13 @@ async function boot(){
     sb.from('jersey_claims').select('*').eq('player_id',currentPlayer.id).order('updated_at',{ascending:false}).limit(1),
     sb.from('event_rsvps').select('*').eq('player_id',currentPlayer.id),
     sb.from('tournaments').select('*').eq('status','Open').order('start_date').limit(4),
-    sb.from('tournament_players').select('*').eq('player_id',currentPlayer.id)
+    sb.from('tournament_players').select('*').eq('player_id',currentPlayer.id),
+    sb.from('seasons').select('*').eq('is_current',true).maybeSingle()
   ]);
   rsvps=rsvpRows.data||[];tournamentResponses=tournamentRows.data||[];
-  const playerAccount=account.data||{},claim=(claims.data||[])[0];
+  const playerAccount=account.data||{},claim=(claims.data||[])[0],currentSeason=seasonResult.data;
+  let seasonRegistration=null;
+  if(currentSeason){const result=await sb.from('season_registrations').select('status,activated_at').eq('season_id',currentSeason.id).eq('player_id',currentPlayer.id).maybeSingle();seasonRegistration=result.data}
   renderJerseyAlert(currentPlayer,claim);
   $('myPhoto').src=currentPlayer.profile_photo_url||'./Dallas-thc-logo.png.JPG';$('welcomeName').textContent=currentPlayer.name;
   $('myMeta').textContent=[currentPlayer.team+' Team',currentPlayer.position||'Position not added',currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Jersey unassigned'].join(' • ');
@@ -106,7 +109,8 @@ async function boot(){
   $('nextPractice').innerHTML=activityCard('practice',(practices.data||[])[0]);$('nextEvent').innerHTML=activityCard('event',(events.data||[])[0]);
   $('announcements').innerHTML=(announcements.data||[]).length?(announcements.data||[]).map(item=>'<article class="card announcement"><div class="tournament-top"><b>'+esc(item.title)+'</b>'+(item.pinned?'<span class="chip">Pinned</span>':'')+'</div><div class="muted">'+new Date(item.created_at).toLocaleDateString()+'</div><p>'+esc(item.body)+'</p></article>').join(''):'<div class="empty">No announcements right now.</div>';
   renderTournaments(tournaments.data||[]);
-  $('myStatus').innerHTML='<div><b>Membership</b><span class="chip '+(playerAccount.membership_status==='Paid'?'':'neutral')+'">'+esc(playerAccount.membership_status||'Not set')+'</span></div><div style="margin-top:12px"><b>Jersey</b><span class="chip '+(currentPlayer.jersey_number?'':'neutral')+'">'+(currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Unassigned')+'</span></div><div style="margin-top:12px"><b>Profile</b><span class="chip '+(currentPlayer.position&&playerAccount.shirt_size?'':'neutral')+'">'+(currentPlayer.position&&playerAccount.shirt_size?'Complete':'Needs items')+'</span></div><a class="btn" href="./player.html" style="margin-top:14px">Update my profile</a>';
+  const seasonStatus=seasonRegistration?.status||'Pending';
+  $('myStatus').innerHTML='<div><b>'+esc(currentSeason?.name||'Current season')+'</b><span class="chip '+(seasonStatus==='Active'?'':'neutral')+'">'+esc(seasonStatus)+'</span></div><div class="muted" style="margin-top:5px">'+(seasonStatus==='Active'?'You are an active season player.':'Your account works normally while club staff reviews your season registration.')+'</div><div style="margin-top:12px"><b>Membership</b><span class="chip '+(playerAccount.membership_status==='Paid'?'':'neutral')+'">'+esc(playerAccount.membership_status||'Not set')+'</span></div><div style="margin-top:12px"><b>Jersey</b><span class="chip '+(currentPlayer.jersey_number?'':'neutral')+'">'+(currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Unassigned')+'</span></div><div style="margin-top:12px"><b>Profile</b><span class="chip '+(currentPlayer.position&&playerAccount.shirt_size?'':'neutral')+'">'+(currentPlayer.position&&playerAccount.shirt_size?'Complete':'Needs items')+'</span></div><a class="btn" href="./player.html" style="margin-top:14px">Update my profile</a>';
   $('players').innerHTML=(roster.data||[]).map(player=>{const own=player.user_id===uid,href=own?'./player.html':'./player-view.html?uid='+encodeURIComponent(player.user_id)+'&id='+encodeURIComponent(player.id);return '<a class="player-card" href="'+href+'"><img src="'+esc(player.profile_photo_url||'./Dallas-thc-logo.png.JPG')+'" alt="'+esc(player.name)+'"><div class="player-info"><div class="player-name">'+esc(player.name)+(own?' (You)':'')+'</div><span class="chip">'+esc(player.team||'Team')+'</span><span class="chip">'+esc(player.position||'Player')+'</span></div></a>'}).join('')||'<div class="empty">No active players yet.</div>';
   $('loading').hidden=true;$('app').hidden=false;
 }

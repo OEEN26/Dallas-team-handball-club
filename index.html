@@ -54,7 +54,7 @@
     <section class="section" aria-labelledby="stats-heading">
       <div class="section-head"><div><h2 id="stats-heading">Club snapshot</h2><p class="muted">Live numbers from the club database.</p></div></div>
       <div class="stats">
-        <article class="card stat"><div class="label">Active Players</div><div class="value" id="activeCount">—</div><div class="detail" id="teamSplit">—</div><div class="team-bar"><span id="menBar" style="width:0"></span></div></article>
+        <article class="card stat"><div class="label">Active This Season</div><div class="value" id="activeCount">—</div><div class="detail" id="teamSplit">—</div><div class="team-bar"><span id="menBar" style="width:0"></span></div></article>
         <article class="card stat"><div class="label">Membership Paid</div><div class="value" id="paidRate">—</div><div class="detail" id="paidDetail">—</div></article>
         <article class="card stat"><div class="label">New Players</div><div class="value" id="newCount">—</div><div class="detail">Last 30 days</div></article>
         <article class="card stat"><div class="label">Next Practice</div><div class="value" id="practiceGoing">—</div><div class="detail">RSVP going</div></article>
@@ -144,11 +144,15 @@ async function loadDashboard(){
       sb.from('club_announcements').select('title,body,audience,pinned,created_at').order('created_at',{ascending:false}).limit(1),
       sb.from('jersey_claims').select('id,status').eq('status','Pending Verification'),
       sb.from('tournaments').select('id,title,start_date,end_date,location,status').in('status',['Open','Planning']).order('start_date').limit(8),
-      sb.from('tournament_players').select('tournament_id,roster_status')
+      sb.from('tournament_players').select('tournament_id,roster_status'),
+      sb.from('seasons').select('id,name').eq('is_current',true).maybeSingle()
     ]);
     const failed=results.filter(result=>result.error);if(failed.length)$('dataMessage').textContent='Some dashboard information could not be loaded. Refresh to try again.';
-    const players=results[0].data||[],practices=results[1].data||[],events=results[2].data||[],latest=(results[3].data||[])[0],claims=results[4].data||[],tournaments=results[5].data||[],tournamentPlayers=results[6].data||[];
-    const active=players.filter(player=>player.status==='Active');
+    const players=results[0].data||[],practices=results[1].data||[],events=results[2].data||[],latest=(results[3].data||[])[0],claims=results[4].data||[],tournaments=results[5].data||[],tournamentPlayers=results[6].data||[],currentSeason=results[7].data;
+    const seasonResult=currentSeason?await sb.from('season_registrations').select('player_id,status').eq('season_id',currentSeason.id):{data:[],error:null};
+    if(seasonResult.error)$('dataMessage').textContent='Season registration totals could not be loaded. Refresh to try again.';
+    const activeIds=new Set((seasonResult.data||[]).filter(row=>row.status==='Active').map(row=>row.player_id));
+    const active=players.filter(player=>activeIds.has(player.id));
     const unpaid=active.filter(player=>player.membership_status!=='Paid');
     const incomplete=active.filter(player=>!player.position||!player.jersey_number||!player.shirt_size);
     const recent=players.filter(player=>player.created_at>=monthAgo);
