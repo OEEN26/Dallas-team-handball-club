@@ -68,6 +68,18 @@
     host.hidden = true;
     host.innerHTML = '<span class="club-current-page"></span><button class="club-avatar-button" type="button" aria-label="Open profile menu" aria-haspopup="true" aria-expanded="false" aria-controls="club-profile-menu"><img class="club-avatar" alt="" /><span aria-hidden="true">⌄</span></button><nav id="club-profile-menu" aria-label="Club and account navigation" hidden></nav>';
     bar.append(host);
+    const playerDock = document.createElement('nav');
+    playerDock.id = 'club-player-dock';
+    playerDock.setAttribute('aria-label','Player navigation');
+    playerDock.hidden = true;
+    playerDock.innerHTML = [
+      ['⌂','Home','player-dashboard.html'],
+      ['◷','Schedule','club-hub.html?tab=schedule'],
+      ['★','Events','events.html'],
+      ['🏆','Tournaments','club-hub.html?tab=tournaments'],
+      ['●','Profile','player.html']
+    ].map(([icon,label,url])=>'<a href="'+path(url)+'"><span aria-hidden="true">'+icon+'</span><small>'+label+'</small></a>').join('');
+    document.body.append(playerDock);
     const button = host.querySelector('button');
     const menu = host.querySelector('nav');
     const avatar = host.querySelector('img');
@@ -90,7 +102,7 @@
     const client = window.supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co', 'sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
     const render = async () => {
       const {data:{session},error} = await client.auth.getSession();
-      if (error || !session) { close();host.hidden = true;document.body.classList.remove('club-header-ready');return; }
+      if (error || !session) { close();host.hidden = true;playerDock.hidden=true;document.body.classList.remove('club-header-ready','club-player-dock-ready');return; }
       const {data:profile,error:roleError} = await client.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
       if (roleError || !profile) return;
       const isAdmin = profile.role === 'admin' || profile.role === 'manager';
@@ -133,12 +145,18 @@
       avatar.src = player?.profile_photo_url || fallback;
       host.hidden = false;
       document.body.classList.add('club-header-ready');
+      const showDock=!isAdmin&&!!player?.id;
+      playerDock.hidden=!showDock;
+      document.body.classList.toggle('club-player-dock-ready',showDock);
+      for(const link of playerDock.querySelectorAll('a')){
+        if(pageKey(link.href)===key)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+      }
     };
     window.addEventListener('popstate', () => render().catch(() => {}));
     window.addEventListener('hashchange', () => render().catch(() => {}));
     window.addEventListener('club:routechange', () => render().catch(() => {}));
     client.auth.onAuthStateChange(event => {
-      if (event === 'SIGNED_OUT') { close();host.hidden = true;document.body.classList.remove('club-header-ready'); }
+      if (event === 'SIGNED_OUT') { close();host.hidden = true;playerDock.hidden=true;document.body.classList.remove('club-header-ready','club-player-dock-ready'); }
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') setTimeout(() => render().catch(() => {}), 0);
     });
     render().catch(() => {});
