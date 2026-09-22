@@ -89,6 +89,9 @@ begin
   end if;
   select * into v_packet from public.season_packets where id=p_packet_id;
   if not found then raise exception 'Signed packet not found.'; end if;
+  perform 1 from public.season_registrations
+    where season_id=v_packet.season_id and player_id=v_packet.player_id for update;
+  if not found then raise exception 'Season registration not found.'; end if;
   if v_packet.document_version <> 'DTHC-2026-27-v1'
     or not (v_packet.risk_accepted and v_packet.release_accepted and v_packet.emergency_accepted
       and v_packet.concussion_accepted and v_packet.conduct_accepted)
