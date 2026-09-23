@@ -37,6 +37,7 @@
   ];
   const adminOnly = [
     ['Admin Management', 'admin-management.html'],
+    ['Admin Awards', 'admin-awards.html'],
     ['System Logs', 'system-logs.html']
   ];
   const pageKey = url => {
@@ -57,7 +58,7 @@
       'profile-completion.html':'Complete Profile', 'player-preview.html':'Player View',
       'player-view.html':'Player View', 'admin-player-dashboard.html':'Player View',
       'player-dashboard.html':'Player Home', 'season-registration.html':'Season Registration',
-      'season-registrations.html':'Season Registrations', 'club-hub.html':'Club Hub',
+      'season-registrations.html':'Season Registrations', 'admin-awards.html':'Admin Awards', 'club-hub.html':'Club Hub',
       'admin-team-profiles.html':'Team Rosters'
     }[key.split('?')[0]] || 'Club Page');
   };
