@@ -56,6 +56,8 @@
       'player.html':'Player Profile', 'jersey-selection.html':'Jersey Registry',
       'profile-completion.html':'Complete Profile', 'player-preview.html':'Player View',
       'player-view.html':'Player View', 'admin-player-dashboard.html':'Player View',
+      'player-dashboard.html':'Player Home', 'season-registration.html':'Season Registration',
+      'season-registrations.html':'Season Registrations', 'club-hub.html':'Club Hub',
       'admin-team-profiles.html':'Team Rosters'
     }[key.split('?')[0]] || 'Club Page');
   };
@@ -140,7 +142,10 @@
       const isAdmin = profile.role === 'admin' || profile.role === 'manager';
       const {data:player} = await client.from('player_directory_public').select('id,profile_photo_url').eq('user_id',session.user.id).maybeSingle();
       const groups = [['Navigate',common(isAdmin)]];
-      if (player?.id) groups[0][1].splice(1,0,['Profile','player.html']);
+      if (player?.id) {
+        groups[0][1].splice(1,0,['Profile','player.html']);
+        if (isAdmin) groups[0][1].splice(2,0,['Player Home','player-dashboard.html']);
+      }
       if (isAdmin) groups.push(['Manage Club',admin]);
       if (profile.role === 'admin') groups.push(['Admin',adminOnly]);
       const items = groups.flatMap(([,links]) => links);
