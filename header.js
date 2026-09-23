@@ -144,7 +144,8 @@
       const groups = [['Navigate',common(isAdmin)]];
       if (player?.id) {
         groups[0][1].splice(1,0,['Profile','player.html']);
-        if (isAdmin) groups[0][1].splice(2,0,['Player Home','player-dashboard.html']);
+        groups[0][1].splice(2,0,['Season Waiver','season-registration.html']);
+        if (isAdmin) groups[0][1].splice(3,0,['Player Home','player-dashboard.html']);
       }
       if (isAdmin) groups.push(['Manage Club',admin]);
       if (profile.role === 'admin') groups.push(['Admin',adminOnly]);
