@@ -84,6 +84,7 @@
         <a class="card tool" href="./signup.html"><span class="tool-icon">＋</span><span><b>Add Player</b><span>Create a player account</span></span></a>
         <a class="card tool" href="./player-management.html"><span class="tool-icon">👥</span><span><b>Manage Players</b><span>Accounts and player status</span></span></a>
         <a class="card tool" href="./season-registrations.html"><span class="tool-icon">✍</span><span><b>Season Registrations</b><span>Review waivers and activate players</span></span></a>
+        <a id="adminAwardsTool" class="card tool hidden" href="./admin-awards.html"><span class="tool-icon">🏅</span><span><b>Admin Awards</b><span>Create medals and recognize players</span></span></a>
         <a class="card tool" href="./jersey-approvals.html"><span class="tool-icon">#</span><span><b>Review Jerseys</b><span>Approve numbers and sizes</span></span></a>
         <a class="card tool" href="./admin-operations.html?tab=tournaments"><span class="tool-icon">⇥</span><span><b>Tournament Roster</b><span>See who wants to go</span></span></a>
       </div>
@@ -128,7 +129,7 @@ async function authenticate(){
   const authResult=await sb.auth.getSession();session=authResult.data.session;
   if(!session){$('login').classList.remove('hidden');$('loading').classList.add('hidden');$('app').classList.add('hidden');return}
   const profileResult=await sb.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
-  adminProfile=profileResult.data;
+  adminProfile=profileResult.data;if(adminProfile?.role==='admin')$('adminAwardsTool').classList.remove('hidden');
   if(profileResult.error||!adminProfile||!['admin','manager'].includes(adminProfile.role)){location.replace('./player-dashboard.html');return}
   $('login').classList.add('hidden');$('loading').classList.remove('hidden');
   $('greeting').textContent='Welcome, '+(adminProfile.full_name?.split(' ')[0]||'Admin');
