@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dallas-thc-v4';
+const CACHE_NAME = 'dallas-thc-v5';
 const APP_SHELL = ['./manifest.json', './Dallas-thc-logo.png.JPG'];
 
 self.addEventListener('install', event => {
