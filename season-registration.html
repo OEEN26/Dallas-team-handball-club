@@ -17,7 +17,7 @@ const contactFields=['emergencyName','emergencyPhone','emergencyRelationship','e
 function contactValues(){return {emergency_contact_name:$('emergencyName').value.trim()||null,emergency_contact_phone:$('emergencyPhone').value.trim()||null,emergency_contact_relationship:$('emergencyRelationship').value.trim()||null,emergency_contact_address:$('emergencyAddress').value.trim()||null}}
 async function persistContact(){
   const values=contactValues(),snapshot=JSON.stringify(values);
-  if(snapshot===lastSavedContact)return;
+  if(snapshot===lastSavedContact){$('contactSave').textContent='Emergency contact saved.';return}
   $('contactSave').textContent='Saving emergency contact…';
   const query=privateExists?sb.from('player_private_details').update({...values,updated_at:new Date().toISOString()}).eq('player_id',player.id).eq('user_id',sessionUserId):sb.from('player_private_details').insert({player_id:player.id,user_id:sessionUserId,...values});
   const {data,error}=await query.select('player_id').single();
