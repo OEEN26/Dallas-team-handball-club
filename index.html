@@ -13,7 +13,7 @@
     .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.field label{display:block;font-size:11px;font-weight:700;color:#a8b8ad;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;background:#0b110d;color:#fff;border:1px solid #32483a;border-radius:8px;font:inherit}.field textarea{min-height:90px;resize:vertical}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}.eyebrow{margin:0 0 6px;color:#00c853;font-size:11px;font-weight:900;letter-spacing:.13em}.hero h1{margin:0 0 5px;font-size:clamp(27px,4vw,39px)}.hero-actions{display:flex;gap:8px;flex-wrap:wrap}
     .section{margin-top:17px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}.section-head h2{font-size:19px;margin:0 0 3px}.section-head p{margin:0}.count-badge{min-width:30px;text-align:center;border-radius:999px;padding:6px 9px;background:#493710;color:#ffd570;font-size:12px;font-weight:900}
-    .alert-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.alert-card{display:block;text-decoration:none;color:inherit;border-left:4px solid #e9ae39;transition:transform .15s,border-color .15s}.alert-card:hover{transform:translateY(-2px);border-color:#ffd268}.alert-card.ok{border-left-color:#00c853}.alert-card strong{display:block;font-size:27px;margin-bottom:4px}.alert-card b{font-size:13px}.alert-card .muted{margin-top:5px}
+    .alert-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.alert-card{display:block;text-decoration:none;color:inherit;border-left:4px solid #e9ae39;transition:transform .15s,border-color .15s}.alert-card:hover{transform:translateY(-2px);border-color:#ffd268}.alert-card.ok{border-left-color:#00c853}.alert-card strong{display:block;font-size:27px;margin-bottom:4px}.alert-card b{font-size:13px}.alert-card .muted{margin-top:5px}
     .stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}.stat{min-height:108px}.stat .value{font-size:27px;font-weight:900;color:#dff8e5;margin:8px 0 4px}.stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#8ca095;font-weight:800}.stat .detail{font-size:11px;color:#92ab99}
     .schedule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.next-card{min-height:215px;display:flex;flex-direction:column}.next-card h3{font-size:17px;margin:7px 0 3px}.next-card .date{font-size:23px;font-weight:900}.next-card .meta{margin:6px 0 13px}.next-card .rsvp{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}.pill{border-radius:999px;padding:6px 8px;background:#1c3022;color:#b6edc4;font-size:11px;font-weight:800}.pill.warn{background:#443414;color:#ffd579}.next-card .btn{margin-top:12px;align-self:flex-start}
     .tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.tool{display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit;min-height:82px;transition:border-color .15s,transform .15s}.tool:hover{border-color:#00c853;transform:translateY(-2px)}.tool-icon{width:34px;height:34px;flex:0 0 auto;display:grid;place-items:center;border-radius:9px;background:#143d22;color:#00c853;font-weight:900}.tool b{display:block;font-size:13px}.tool span:last-child{display:block;margin-top:3px;color:#8fa298;font-size:11px}
@@ -46,6 +46,7 @@
       <div class="alert-grid">
         <a class="card alert-card" href="./admin-operations.html?tab=membership"><strong id="unpaidCount">—</strong><b>Unpaid active members</b><div class="muted">Review membership status</div></a>
         <a class="card alert-card" href="./player-management.html"><strong id="incompleteCount">—</strong><b>Incomplete players</b><div class="muted">Missing position, jersey or size</div></a>
+        <a class="card alert-card" href="./season-registrations.html"><strong id="packetPendingCount">—</strong><b>Season registrations</b><div class="muted">Signed packets awaiting approval</div></a>
         <a class="card alert-card" href="./jersey-approvals.html"><strong id="jerseyPendingCount">—</strong><b>Jersey approvals</b><div class="muted">Claims waiting for review</div></a>
         <a class="card alert-card" href="./admin-operations.html?tab=tournaments"><strong id="interestCount">—</strong><b>Tournament interest</b><div class="muted">Players not yet confirmed</div></a>
       </div>
@@ -82,6 +83,7 @@
         <a class="card tool" href="./event-attendance.html"><span class="tool-icon">✓</span><span><b>Take Attendance</b><span>Mark the event roster</span></span></a>
         <a class="card tool" href="./signup.html"><span class="tool-icon">＋</span><span><b>Add Player</b><span>Create a player account</span></span></a>
         <a class="card tool" href="./player-management.html"><span class="tool-icon">👥</span><span><b>Manage Players</b><span>Accounts and player status</span></span></a>
+        <a class="card tool" href="./season-registrations.html"><span class="tool-icon">✍</span><span><b>Season Registrations</b><span>Review waivers and activate players</span></span></a>
         <a class="card tool" href="./jersey-approvals.html"><span class="tool-icon">#</span><span><b>Review Jerseys</b><span>Approve numbers and sizes</span></span></a>
         <a class="card tool" href="./admin-operations.html?tab=tournaments"><span class="tool-icon">⇥</span><span><b>Tournament Roster</b><span>See who wants to go</span></span></a>
       </div>
@@ -151,6 +153,10 @@ async function loadDashboard(){
     const players=results[0].data||[],practices=results[1].data||[],events=results[2].data||[],latest=(results[3].data||[])[0],claims=results[4].data||[],tournaments=results[5].data||[],tournamentPlayers=results[6].data||[],currentSeason=results[7].data;
     const seasonResult=currentSeason?await sb.from('season_registrations').select('player_id,status').eq('season_id',currentSeason.id):{data:[],error:null};
     if(seasonResult.error)$('dataMessage').textContent='Season registration totals could not be loaded. Refresh to try again.';
+    const packetResult=currentSeason?await sb.from('season_packets').select('player_id').eq('season_id',currentSeason.id):{data:[],error:null};
+    if(packetResult.error)$('dataMessage').textContent='Signed packet totals could not be loaded. Refresh to try again.';
+    const packetIds=new Set((packetResult.data||[]).map(row=>row.player_id));
+    const packetsAwaitingReview=(seasonResult.data||[]).filter(row=>row.status==='Pending'&&packetIds.has(row.player_id)).length;
     const activeIds=new Set((seasonResult.data||[]).filter(row=>row.status==='Active').map(row=>row.player_id));
     const active=players.filter(player=>activeIds.has(player.id));
     const unpaid=active.filter(player=>player.membership_status!=='Paid');
@@ -171,9 +177,9 @@ async function loadDashboard(){
     const practiceCounts=nextPractice?countResponses(practiceRsvps,nextPractice.id,'practice_id'):{going:0,maybe:0,notGoing:0};
     const eventCounts=nextEvent?countResponses(eventRsvps,nextEvent.id,'event_id'):{going:0,maybe:0,notGoing:0};
     const tournamentCounts=nextTournament?{interested:tournamentPlayers.filter(row=>row.tournament_id===nextTournament.id&&row.roster_status==='Interested').length,confirmed:tournamentPlayers.filter(row=>row.tournament_id===nextTournament.id&&['Selected','Confirmed'].includes(row.roster_status)).length}:{interested:0,confirmed:0};
-    $('unpaidCount').textContent=unpaid.length;$('incompleteCount').textContent=incomplete.length;$('jerseyPendingCount').textContent=claims.length;$('interestCount').textContent=interest.length;
-    [['unpaidCount',unpaid.length],['incompleteCount',incomplete.length],['jerseyPendingCount',claims.length],['interestCount',interest.length]].forEach(([id,count])=>setAlertStyle(id,count));
-    $('attentionTotal').textContent=unpaid.length+incomplete.length+claims.length+interest.length;
+    $('unpaidCount').textContent=unpaid.length;$('incompleteCount').textContent=incomplete.length;$('packetPendingCount').textContent=packetsAwaitingReview;$('jerseyPendingCount').textContent=claims.length;$('interestCount').textContent=interest.length;
+    [['unpaidCount',unpaid.length],['incompleteCount',incomplete.length],['packetPendingCount',packetsAwaitingReview],['jerseyPendingCount',claims.length],['interestCount',interest.length]].forEach(([id,count])=>setAlertStyle(id,count));
+    $('attentionTotal').textContent=unpaid.length+incomplete.length+packetsAwaitingReview+claims.length+interest.length;
     $('activeCount').textContent=active.length;$('teamSplit').textContent=men+' Men • '+women+' Women';$('menBar').style.width=(active.length?Math.round(men/active.length*100):0)+'%';
     $('paidRate').textContent=(active.length?Math.round(paid/active.length*100):0)+'%';$('paidDetail').textContent=paid+' of '+active.length+' active players';
     $('newCount').textContent=recent.length;$('practiceGoing').textContent=practiceCounts.going;

@@ -23,6 +23,7 @@
   const admin = [
     ['Club Operations', 'admin-operations.html'],
     ['Players', 'player-management.html'],
+    ['Season Registrations', 'season-registrations.html'],
     ['Practices', 'admin-content.html#practices'],
     ['Announcements', 'admin-content.html#announcements'],
     ['Event Management', 'events.html'],
@@ -83,7 +84,7 @@
       return '';
     }
     if (page === 'index.html') return 'home';
-    if (['player-management.html','admin-team-profiles.html'].includes(page)) return 'players';
+    if (['player-management.html','season-registrations.html','admin-team-profiles.html'].includes(page)) return 'players';
     if (page === 'admin-content.html' || page === 'events.html' || page === 'event-attendance.html') return 'schedule';
     if (key === 'admin-operations.html?tab=tournaments' || page === 'event-readiness.html') return 'tournaments';
     return 'operations';
