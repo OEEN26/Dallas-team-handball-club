@@ -20,7 +20,7 @@
     .jersey-alert{margin-bottom:13px}.pending{border-left:4px solid #ffcc66}.denied{border-left:4px solid #ff6b6b}.verified{border-left:4px solid #00c853}.jersey-num{font-size:30px;font-weight:950;margin:3px 0}.alert-actions{margin-top:10px}
     @media(max-width:850px){.shortcuts{grid-template-columns:repeat(3,1fr)}.player-grid{grid-template-columns:repeat(3,1fr)}.news-grid{grid-template-columns:1fr}}
     @media(max-width:620px){.wrap{padding-top:13px}.hero{grid-template-columns:72px 1fr auto;min-height:104px;padding:13px}.hero img{width:72px;height:72px}.hero h1{font-size:21px}.shortcuts{grid-template-columns:1fr 1fr}.shortcut{min-height:88px}.next-grid{grid-template-columns:1fr}.next-card{min-height:0}.player-grid{grid-template-columns:1fr 1fr}.section-head{align-items:flex-start}}
-  </style>
+  </style><link rel="stylesheet" href="./season-medal.css">
 </head>
 <body>
 <header><div class="bar"><div class="brand"><img src="./Dallas-thc-logo.png.JPG" class="logo" alt=""><div>Dallas <span>THC</span><div class="muted">PLAYER HOME</div></div></div></div></header>
@@ -66,7 +66,7 @@
     </section>
   </div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./season-medal.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $=id=>document.getElementById(id);
@@ -106,14 +106,14 @@ async function boot(){
   if(currentSeason){const result=await sb.from('season_registrations').select('status,activated_at').eq('season_id',currentSeason.id).eq('player_id',currentPlayer.id).maybeSingle();seasonRegistration=result.data;const packetResult=await sb.from('season_packets').select('signed_at').eq('season_id',currentSeason.id).eq('player_id',currentPlayer.id).order('signed_at',{ascending:false}).limit(1);seasonPacket=packetResult.data?.[0]||null}
   renderJerseyAlert(currentPlayer,claim);
   $('myPhoto').src=currentPlayer.profile_photo_url||'./Dallas-thc-logo.png.JPG';$('welcomeName').textContent=currentPlayer.name;
-  $('myMeta').textContent=[currentPlayer.team+' Team',currentPlayer.position||'Position not added',currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Jersey unassigned'].join(' • ');$('myMedal').hidden=!activeMedals.has(currentPlayer.id);$('myMedalText').textContent=activeMedals.has(currentPlayer.id)?'Active '+activeMedals.get(currentPlayer.id)+' season':'';
+  $('myMeta').textContent=[currentPlayer.team+' Team',currentPlayer.position||'Position not added',currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Jersey unassigned'].join(' • ');$('myMedal').hidden=!activeMedals.has(currentPlayer.id);if(activeMedals.has(currentPlayer.id))decorateSeasonMedals();
   $('membershipShortcut').textContent='Status: '+(playerAccount.membership_status||'Not set');
   $('nextPractice').innerHTML=activityCard('practice',(practices.data||[])[0]);$('nextEvent').innerHTML=activityCard('event',(events.data||[])[0]);
   $('announcements').innerHTML=(announcements.data||[]).length?(announcements.data||[]).map(item=>'<article class="card announcement"><div class="tournament-top"><b>'+esc(item.title)+'</b>'+(item.pinned?'<span class="chip">Pinned</span>':'')+'</div><div class="muted">'+new Date(item.created_at).toLocaleDateString()+'</div><p>'+esc(item.body)+'</p></article>').join(''):'<div class="empty">No announcements right now.</div>';
   renderTournaments(tournaments.data||[]);
   const seasonStatus=seasonRegistration?.status||'Pending';
   $('myStatus').innerHTML='<div><b>'+esc(currentSeason?.name||'Current season')+'</b><span class="chip '+(seasonStatus==='Active'?'':'neutral')+'">'+esc(seasonStatus)+'</span></div><div class="muted" style="margin-top:5px">'+(seasonStatus==='Active'?'You are an active season player.':seasonPacket?'Your signed packet is awaiting admin review.':'Complete your season packet to request admin approval.')+'</div><div style="margin-top:12px"><b>Membership</b><span class="chip '+(playerAccount.membership_status==='Paid'?'':'neutral')+'">'+esc(playerAccount.membership_status||'Not set')+'</span></div><div style="margin-top:12px"><b>Jersey</b><span class="chip '+(currentPlayer.jersey_number?'':'neutral')+'">'+(currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Unassigned')+'</span></div><div style="margin-top:12px"><b>Profile</b><span class="chip '+(currentPlayer.position&&playerAccount.shirt_size?'':'neutral')+'">'+(currentPlayer.position&&playerAccount.shirt_size?'Complete':'Needs items')+'</span></div><a class="btn primary" href="./season-registration.html" style="margin-top:14px">'+(seasonStatus==='Active'?'View season waiver':seasonPacket?'View waiver and registration':'Read & sign season waiver')+'</a> <a class="btn" href="./player.html" style="margin-top:14px">Update my profile</a>';
-  $('players').innerHTML=(roster.data||[]).map(player=>{const own=player.user_id===uid,href=own?'./player.html':'./player-view.html?uid='+encodeURIComponent(player.user_id)+'&id='+encodeURIComponent(player.id);return '<a class="player-card" href="'+href+'"><img src="'+esc(player.profile_photo_url||'./Dallas-thc-logo.png.JPG')+'" alt="'+esc(player.name)+'"><div class="player-info"><div class="player-name">'+esc(player.name)+(own?' (You)':'')+'</div><span class="chip">'+esc(player.team||'Team')+'</span><span class="chip">'+esc(player.position||'Player')+'</span>'+(activeMedals.has(player.id)?'<div class="season-medal" aria-label="Active '+esc(activeMedals.get(player.id))+' season"><span class="medal-icon" aria-hidden="true">🏅</span>Active '+esc(activeMedals.get(player.id))+' season</div>':'')+'</div></a>'}).join('')||'<div class="empty">No active players yet.</div>';
+  $('players').innerHTML=(roster.data||[]).map(player=>{const own=player.user_id===uid,href=own?'./player.html':'./player-view.html?uid='+encodeURIComponent(player.user_id)+'&id='+encodeURIComponent(player.id);return '<a class="player-card" href="'+href+'"><img src="'+esc(player.profile_photo_url||'./Dallas-thc-logo.png.JPG')+'" alt="'+esc(player.name)+'"><div class="player-info"><div class="player-name">'+esc(player.name)+(own?' (You)':'')+'</div><span class="chip">'+esc(player.team||'Team')+'</span><span class="chip">'+esc(player.position||'Player')+'</span>'+(activeMedals.has(player.id)?'<div class="season-medal" aria-label="Active '+esc(activeMedals.get(player.id))+' season"><span class="medal-icon" aria-hidden="true">🏅</span>Active '+esc(activeMedals.get(player.id))+' season</div>':'')+'</div></a>'}).join('')||'<div class="empty">No active players yet.</div>';decorateSeasonMedals();
   $('loading').hidden=true;$('app').hidden=false;
 }
 function renderTournaments(items){
