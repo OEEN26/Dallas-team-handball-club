@@ -7,7 +7,7 @@ window.decorateSeasonMedals = function () {
     medal.setAttribute('tabindex', '0');
     medal.setAttribute('aria-expanded', 'false');
     medal.setAttribute('aria-label', '2026–2027 season medal. Show details');
-    medal.innerHTML = '<img class="season-medal-art" src="./season-medal-2026-27.svg" alt="" aria-hidden="true"><span class="season-medal-info" hidden>for participating in the season of 2026 - 2027</span>';
+    medal.innerHTML = '<img class="season-medal-art" src="./season-medal-2026-27.svg?v=20260923b" alt="" aria-hidden="true"><span class="season-medal-info" hidden>for participating in the season of 2026 - 2027</span>';
     const toggle = event => {
       event.preventDefault();
       event.stopPropagation();
