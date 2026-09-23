@@ -66,7 +66,7 @@
     </section>
   </div>
 </main>
-<script src="./season-medal.js?v=20260923c"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./season-medal.js?v=20260923d"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $=id=>document.getElementById(id);
@@ -87,7 +87,7 @@ async function boot(){
   const uid=currentSession.user.id;
   const publicResult=await sb.from('player_directory_public').select('id,user_id,name,team,position,jersey_number,profile_photo_url').eq('user_id',uid).maybeSingle();
   currentPlayer=publicResult.data;if(!currentPlayer){location.replace('./player.html');return}
-  const [account,announcements,practices,events,roster,claims,rsvpRows,tournaments,tournamentRows,seasonResult,medalResult]=await Promise.all([
+  const [account,announcements,practices,events,roster,claims,rsvpRows,tournaments,tournamentRows,seasonResult,medalResult,customMedals]=await Promise.all([
     sb.from('players').select('membership_status,shirt_size,status').eq('id',currentPlayer.id).maybeSingle(),
     sb.from('club_announcements').select('*').in('audience',['All',currentPlayer.team]).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(6),
     sb.from('practices').select('*').in('team',['All',currentPlayer.team]).eq('canceled',false).gte('practice_date',today()).order('practice_date').order('start_time').limit(4),
@@ -98,10 +98,11 @@ async function boot(){
     sb.from('tournaments').select('*').eq('status','Open').order('start_date').limit(4),
     sb.from('tournament_players').select('*').eq('player_id',currentPlayer.id),
     sb.from('seasons').select('*').eq('is_current',true).maybeSingle(),
-    sb.rpc('player_season_medals')
+    sb.rpc('player_season_medals'),
+    loadCustomMedals(sb)
   ]);
   rsvps=rsvpRows.data||[];tournamentResponses=tournamentRows.data||[];
-  const playerAccount=account.data||{},claim=(claims.data||[])[0],currentSeason=seasonResult.data;const activeMedals=new Map();(medalResult.data||[]).forEach(row=>{if(!activeMedals.has(row.player_id))activeMedals.set(row.player_id,[]);activeMedals.get(row.player_id).push(row)});if(medalResult.error)console.warn('Season medals unavailable',medalResult.error);
+  const playerAccount=account.data||{},claim=(claims.data||[])[0],currentSeason=seasonResult.data;const activeMedals=new Map();(medalResult.data||[]).concat(customMedals).forEach(row=>{if(!activeMedals.has(row.player_id))activeMedals.set(row.player_id,[]);activeMedals.get(row.player_id).push(row)});if(medalResult.error)console.warn('Season medals unavailable',medalResult.error);
   let seasonRegistration=null,seasonPacket=null;
   if(currentSeason){const result=await sb.from('season_registrations').select('status,activated_at').eq('season_id',currentSeason.id).eq('player_id',currentPlayer.id).maybeSingle();seasonRegistration=result.data;const packetResult=await sb.from('season_packets').select('signed_at').eq('season_id',currentSeason.id).eq('player_id',currentPlayer.id).order('signed_at',{ascending:false}).limit(1);seasonPacket=packetResult.data?.[0]||null}
   renderJerseyAlert(currentPlayer,claim);
