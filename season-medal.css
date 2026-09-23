@@ -1,7 +1,9 @@
-.season-medal[data-medal-ready]{position:relative;display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;max-width:100%;border:0;border-radius:0;background:transparent;box-shadow:none;padding:0;margin:8px 8px 5px 0;cursor:pointer;vertical-align:middle}
-.season-medal[data-medal-ready][hidden],.season-medal-info[hidden]{display:none}
-.season-medal[data-medal-ready]:focus-visible{outline:2px solid #00c853;outline-offset:3px}
+.season-medals{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:8px}
+.season-medals[hidden],.season-medal-info[hidden]{display:none}
+.season-medal{position:relative;display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;min-width:62px;border:0;border-radius:0;background:transparent;box-shadow:none;padding:0;margin:0;cursor:pointer;vertical-align:middle}
+.season-medal:focus-visible{outline:2px solid #00c853;outline-offset:3px}
 .season-medal-art{width:62px!important;height:62px!important;min-width:62px;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important;display:block}
+.season-medal-generic{display:grid;place-items:center;width:52px;height:52px;border:1px solid #d6ac4e;border-radius:50%;background:#312410;font-size:28px}
 .season-medal-info:not([hidden]){position:absolute;z-index:20;top:calc(100% + 8px);left:0;width:max-content;max-width:min(280px,80vw);padding:10px 12px;border:1px solid #c89b49;border-radius:10px;background:#251b11;color:#fff1cc;font-size:13px;line-height:1.4;font-weight:600;box-shadow:0 8px 25px #0009;white-space:normal}
-.player-card:has(.season-medal[data-medal-ready]){overflow:visible}
-@media (hover:hover){.season-medal[data-medal-ready]:hover .season-medal-info[hidden]{display:block}}
+.player-card:has(.season-medals:not([hidden])){overflow:visible}
+@media (hover:hover){.season-medal:hover .season-medal-info[hidden]{display:block}}
