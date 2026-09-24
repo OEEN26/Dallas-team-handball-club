@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><link rel="manifest" href="./manifest.json"><link rel="apple-touch-icon" href="./icons/icon-192.png">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#00c853">
@@ -18,9 +18,10 @@
     .tournament{border-left:3px solid #3bcf70}.tournament-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.chip{display:inline-flex;margin-top:5px;margin-right:5px;padding:5px 8px;border-radius:999px;background:#153d23;border:1px solid #2f6841;color:#aaf2bd;font-size:11px}.chip.neutral{background:#242c27;border-color:#3d4941;color:#c0cbc3}
     .player-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.player-card{display:block;background:#121a15;border:1px solid #293c2f;border-radius:13px;overflow:hidden;color:#fff;text-decoration:none;transition:transform .15s,border-color .15s}.player-card:hover{transform:translateY(-2px);border-color:#00c853}.player-card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#1c2820}.player-info{padding:10px}.player-name{font-weight:800;font-size:13px}
     .jersey-alert{margin-bottom:13px}.pending{border-left:4px solid #ffcc66}.denied{border-left:4px solid #ff6b6b}.verified{border-left:4px solid #00c853}.jersey-num{font-size:30px;font-weight:950;margin:3px 0}.alert-actions{margin-top:10px}
+    .attention{border-left:4px solid #00c853}.attention h2{margin:0 0 6px}.attention-list{display:grid;gap:8px;margin-top:12px}.attention-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #293c2f}.attention-item a{white-space:nowrap}.attention-note{font-size:12px;color:#a8b6ad}.attention-good{color:#89eaa7}.attention-warning{color:#ffd580}
     @media(max-width:850px){.shortcuts{grid-template-columns:repeat(3,1fr)}.player-grid{grid-template-columns:repeat(3,1fr)}.news-grid{grid-template-columns:1fr}}
     @media(max-width:620px){.wrap{padding-top:13px}.hero{grid-template-columns:72px 1fr auto;min-height:104px;padding:13px}.hero img{width:72px;height:72px}.hero h1{font-size:21px}.shortcuts{grid-template-columns:1fr 1fr}.shortcut{min-height:88px}.next-grid{grid-template-columns:1fr}.next-card{min-height:0}.player-grid{grid-template-columns:1fr 1fr}.section-head{align-items:flex-start}}
-  </style><link rel="stylesheet" href="./season-medal.css?v=20260923c">
+  </style><link rel="stylesheet" href="./season-medal.css?v=20260923c"><link rel="stylesheet" href="./reminders.css">
 </head>
 <body>
 <header><div class="bar"><div class="brand"><img src="./Dallas-thc-logo.png.JPG" class="logo" alt=""><div>Dallas <span>THC</span><div class="muted">PLAYER HOME</div></div></div></div></header>
@@ -32,6 +33,7 @@
       <img id="myPhoto" src="./Dallas-thc-logo.png.JPG" alt="Your profile photo">
       <div><p class="eyebrow">WELCOME BACK</p><h1 id="welcomeName"></h1><div id="myMeta" class="muted"></div><div id="myMedal" class="season-medals" aria-label="Season medals" hidden></div></div><span class="arrow" aria-hidden="true">›</span>
     </a>
+    <section class="section card attention" aria-labelledby="attention-heading"><h2 id="attention-heading">What needs my attention?</h2><p class="muted">Season registration and membership payments are tracked separately.</p><div id="attentionList" class="attention-list" aria-live="polite"></div></section>
 
     <section class="section" aria-labelledby="start-heading">
       <div class="section-head"><div><h2 id="start-heading">Where do you want to go?</h2><p class="muted">Tap a section to open it.</p></div></div>
@@ -55,6 +57,7 @@
       <div id="tournaments" class="feed"></div>
     </section>
 
+    <section class="section" aria-label="Reminders"><div id="reminderCenter"></div></section>
     <section class="section news-grid">
       <div><div class="section-head"><div><h2>Club announcements</h2><p class="muted">Latest team news.</p></div><a class="link" href="./club-hub.html?tab=notifications">Notifications</a></div><div id="announcements" class="feed"></div></div>
       <div><div class="section-head"><div><h2>My status</h2><p class="muted">Quick account overview.</p></div></div><div id="myStatus" class="card"></div></div>
@@ -66,7 +69,7 @@
     </section>
   </div>
 </main>
-<script src="./season-medal.js?v=20260923d"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1" integrity="sha384-q36VSR1ktH2hgqgm+0LDeyqPW8CyZHSxfDSttSPm5ReOJzB+sYThmh7D4fE+jWTs" crossorigin="anonymous"></script>
+<script src="./season-medal.js?v=20260923d"></script><script src="./reminders.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1" integrity="sha384-q36VSR1ktH2hgqgm+0LDeyqPW8CyZHSxfDSttSPm5ReOJzB+sYThmh7D4fE+jWTs" crossorigin="anonymous"></script>
 <script>
 const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $=id=>document.getElementById(id);
@@ -113,12 +116,25 @@ async function boot(){
   $('announcements').innerHTML=(announcements.data||[]).length?(announcements.data||[]).map(item=>'<article class="card announcement"><div class="tournament-top"><b>'+esc(item.title)+'</b>'+(item.pinned?'<span class="chip">Pinned</span>':'')+'</div><div class="muted">'+new Date(item.created_at).toLocaleDateString()+'</div><p>'+esc(item.body)+'</p></article>').join(''):'<div class="empty">No announcements right now.</div>';
   renderTournaments(tournaments.data||[]);
   const seasonStatus=seasonRegistration?.status||'Pending';$('seasonShortcutTitle').textContent=seasonStatus==='Active'||seasonPacket?'Registration status':'Season Registration';$('seasonShortcutDetail').textContent=seasonStatus==='Active'?'Already registered — approved':seasonPacket?'Already registered — awaiting review':'Read and sign your registration';
+  renderAttention({seasonStatus,seasonPacket,playerAccount,practices:practices.data||[],events:events.data||[],tournaments:tournaments.data||[],claim});
   $('myStatus').innerHTML='<div><b>'+esc(currentSeason?.name||'Current season')+'</b><span class="chip '+(seasonStatus==='Active'?'':'neutral')+'">'+esc(seasonStatus)+'</span></div><div class="muted" style="margin-top:5px">'+(seasonStatus==='Active'?'You are an active season player.':seasonPacket?'Your signed packet is awaiting admin review.':'Complete your season packet to request admin approval.')+'</div><div style="margin-top:12px"><b>Membership</b><span class="chip '+(playerAccount.membership_status==='Paid'?'':'neutral')+'">'+esc(playerAccount.membership_status||'Not set')+'</span></div><div style="margin-top:12px"><b>Jersey</b><span class="chip '+(currentPlayer.jersey_number?'':'neutral')+'">'+(currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Unassigned')+'</span></div><div style="margin-top:12px"><b>Profile</b><span class="chip '+(currentPlayer.position&&playerAccount.shirt_size?'':'neutral')+'">'+(currentPlayer.position&&playerAccount.shirt_size?'Complete':'Needs items')+'</span></div><a class="btn primary" href="./season-registration.html" style="margin-top:14px">'+(seasonStatus==='Active'||seasonPacket?'View registration status':'Read & sign season waiver')+'</a> <a class="btn" href="./player.html" style="margin-top:14px">Update my profile</a>';
   $('players').innerHTML=(roster.data||[]).map(player=>{const own=player.user_id===uid,href=own?'./player.html':'./player-view.html?uid='+encodeURIComponent(player.user_id)+'&id='+encodeURIComponent(player.id);return '<a class="player-card" href="'+href+'"><img src="'+esc(player.profile_photo_url||'./Dallas-thc-logo.png.JPG')+'" alt="'+esc(player.name)+'"><div class="player-info"><div class="player-name">'+esc(player.name)+(own?' (You)':'')+'</div><span class="chip">'+esc(player.team||'Team')+'</span><span class="chip">'+esc(player.position||'Player')+'</span>'+'<div class="season-medals" data-player-id="'+esc(player.id)+'" aria-label="Season medals"></div>'+'</div></a>'}).join('')||'<div class="empty">No active players yet.</div>';document.querySelectorAll('#players .season-medals').forEach(el=>renderSeasonMedals(el,activeMedals.get(el.dataset.playerId)||[]));
-  $('loading').hidden=true;$('app').hidden=false;
+  $('loading').hidden=true;$('app').hidden=false;window.clubReminders?.init({client:sb,userId:uid,playerId:currentPlayer.id,team:currentPlayer.team});
+}
+function renderAttention({seasonStatus,seasonPacket,playerAccount,practices,events,tournaments,claim}){
+  const items=[],add=(message,url,label,good=false)=>items.push('<div class="attention-item"><span class="'+(good?'attention-good':'attention-warning')+'">'+esc(message)+'</span><a class="link" href="'+url+'">'+esc(label)+'</a></div>');
+  add(seasonStatus==='Active'?'✓ Active for this season':seasonPacket?'Season packet awaiting approval':'Season registration needs action','./season-registration.html','View status',seasonStatus==='Active');
+  add('Membership payment: '+(playerAccount.membership_status||'Not set')+'. This is separate from season registration.','./club-hub.html?tab=membership','Membership',playerAccount.membership_status==='Paid');
+  if(!currentPlayer.position||!playerAccount.shirt_size)add('Complete your position and shirt size','./player.html','Edit profile');
+  if(claim?.status==='Rejected')add('Jersey number needs correction','./jersey-selection.html','Choose number');
+  const next=[...practices.map(p=>({id:p.id,date:p.practice_date,type:'practice',title:p.title})),...events.map(e=>({id:e.id,date:e.event_date,type:'event',title:e.title}))].sort((a,b)=>a.date.localeCompare(b.date))[0];
+  if(next)add('Next: '+next.title+' • '+formatDate(next.date)+(currentResponse(next.type,next.id)?' • '+currentResponse(next.type,next.id):' • RSVP needed'),'./club-hub.html?tab=schedule','Open schedule',!!currentResponse(next.type,next.id));
+  const unanswered=tournaments.find(t=>!tournamentResponses.some(r=>r.tournament_id===t.id));
+  if(unanswered)add('Tournament response needed: '+unanswered.title,'./club-hub.html?tab=tournaments&tournament='+encodeURIComponent(unanswered.id),'View tournament');
+  $('attentionList').innerHTML=items.join('')||'<p class="attention-good">You are all caught up.</p>';
 }
 function renderTournaments(items){
-  $('tournaments').innerHTML=items.length?items.map(item=>{const response=tournamentResponses.find(row=>row.tournament_id===item.id)?.roster_status||'';return '<article class="card tournament" data-tournament="'+item.id+'"><div class="tournament-top"><div><b>'+esc(item.title)+'</b><div class="muted">'+formatDate(item.start_date)+(item.location?' • '+esc(item.location):'')+'</div></div><span class="chip">'+(response?esc(response):'Open')+'</span></div>'+(item.notes?'<p>'+esc(item.notes)+'</p>':'')+'<div class="rsvp"><button type="button" class="btn '+(response==='Interested'?'selected':'')+'" onclick="respondTournament(\''+item.id+'\',\'Interested\',this)">I Want to Go</button><button type="button" class="btn '+(response==='Not Going'?'selected':'')+'" onclick="respondTournament(\''+item.id+'\',\'Not Going\',this)">I Can’t Go</button></div><div class="rsvp-status">'+(response?'Your response: '+esc(response):'Choose a response.')+'</div></article>'}).join(''):'<div class="empty">No tournament registration is open right now.</div>';
+  $('tournaments').innerHTML=items.length?items.map(item=>{const response=tournamentResponses.find(row=>row.tournament_id===item.id)?.roster_status||'';return '<article class="card tournament" data-tournament="'+item.id+'"><div class="tournament-top"><div><b>'+esc(item.title)+'</b><div class="muted">'+formatDate(item.start_date)+(item.location?' • '+esc(item.location):'')+'</div></div><span class="chip">'+(response?esc(response):'Open')+'</span></div>'+(item.notes?'<p>'+esc(item.notes)+'</p>':'')+'<div class="rsvp"><a class="btn" href="./club-hub.html?tab=tournaments&tournament='+encodeURIComponent(item.id)+'">View details & players</a><button type="button" class="btn '+(response==='Interested'?'selected':'')+'" onclick="respondTournament(\''+item.id+'\',\'Interested\',this)">I Want to Go</button><button type="button" class="btn '+(response==='Not Going'?'selected':'')+'" onclick="respondTournament(\''+item.id+'\',\'Not Going\',this)">I Can’t Go</button></div><div class="rsvp-status">'+(response?'Your response: '+esc(response):'Choose a response.')+'</div></article>'}).join(''):'<div class="empty">No tournament registration is open right now.</div>';
 }
 window.setPlayerRsvp=async(type,id,response,button)=>{
   button.disabled=true;const key=type==='practice'?'practice_id':'event_id',existing=rsvps.find(row=>row[key]===id);

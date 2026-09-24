@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Dallas Team Handball Club">
+  <rect width="512" height="512" rx="108" fill="#0b1510"/>
+  <circle cx="256" cy="256" r="205" fill="#00c853"/>
+  <circle cx="256" cy="256" r="185" fill="#112419" stroke="#d5f5dd" stroke-width="10"/>
+  <path d="M168 214 256 158l88 56-34 105H202Z" fill="#e6f9e9"/>
+  <path d="M168 214 202 319M344 214 310 319M256 158v-54M202 319l-48 37M310 319l48 37" fill="none" stroke="#00c853" stroke-width="12" stroke-linecap="round"/>
+  <text x="256" y="384" text-anchor="middle" fill="#e6f9e9" font-family="Arial,sans-serif" font-size="44" font-weight="900" letter-spacing="3">DTHC</text>
+</svg>

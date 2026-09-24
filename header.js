@@ -3,6 +3,13 @@
   'use strict';
   const root = new URL('./', document.currentScript?.src || location.href);
   const path = name => new URL(name, root).href;
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const manifest = document.createElement('link');manifest.rel='manifest';manifest.href=path('manifest.json');document.head.append(manifest);
+  }
+  if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+    const icon=document.createElement('link');icon.rel='apple-touch-icon';icon.href=path('icons/icon-192.png');document.head.append(icon);
+  }
+  if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register(path('service-worker.js'),{scope:root.pathname}).catch(()=>{}),{once:true});
   const fallback = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#153d25"/><circle cx="32" cy="25" r="11" fill="#00c853"/><path d="M12 55c2-13 10-20 20-20s18 7 20 20" fill="#00c853"/></svg>');
   const ensureI18n = () => {
     if (window.clubI18n || document.querySelector('script[data-club-i18n]')) return;

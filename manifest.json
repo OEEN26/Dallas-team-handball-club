@@ -1,13 +1,13 @@
 {
   "name": "Dallas THC Club Manager",
   "short_name": "Dallas THC",
-  "start_url": "./",
+  "id": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
   "background_color": "#090909",
-  "theme_color": "#19c957",
+  "theme_color": "#00c853",
   "description": "Dallas Team Handball Club management app for rosters, events, attendance, memberships and tournaments.",
   "categories": ["sports", "productivity"],
   "shortcuts": [
@@ -16,11 +16,7 @@
     {"name":"Player Dashboard","short_name":"Players","url":"./player-dashboard.html"}
   ],
   "icons": [
-    {
-      "src": "./Dallas-thc-logo.png.JPG",
-      "sizes": "any",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    }
+    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
