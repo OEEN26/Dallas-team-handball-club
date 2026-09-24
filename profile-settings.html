@@ -16,7 +16,7 @@ button,.action{display:inline-block;border:1px solid #00c853;border-radius:8px;b
 <label for="full-name">Display name</label><input id="full-name" maxlength="120" autocomplete="name">
 <button id="save" type="button">Save name</button><p id="message" role="status"></p>
 <a class="action secondary" href="./player.html">Edit player details and photo</a></section></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1" integrity="sha384-q36VSR1ktH2hgqgm+0LDeyqPW8CyZHSxfDSttSPm5ReOJzB+sYThmh7D4fE+jWTs" crossorigin="anonymous"></script>
 <script>
 (async()=>{const client=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $=id=>document.getElementById(id);const {data:{session},error}=await client.auth.getSession();

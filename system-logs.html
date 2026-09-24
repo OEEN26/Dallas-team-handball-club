@@ -10,7 +10,7 @@ select{background:#16251b;color:#fff;border:1px solid #426348;border-radius:8px;
 <main><h1>System Logs</h1><p class="muted">Recent admin activity and technical issues. Only admins can open this page.</p>
 <label for="filter">Show</label> <select id="filter"><option value="all">All logs</option><option value="activity">Admin activity</option><option value="technical">Technical issues</option></select>
 <p id="status" class="muted" role="status">Loading logs…</p><div id="list"></div></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1" integrity="sha384-q36VSR1ktH2hgqgm+0LDeyqPW8CyZHSxfDSttSPm5ReOJzB+sYThmh7D4fE+jWTs" crossorigin="anonymous"></script><script>
 (async()=>{const client=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $=id=>document.getElementById(id);const {data:{session}}=await client.auth.getSession();if(!session){location.replace('./index.html');return}
 const {data:me,error:roleError}=await client.from('profiles').select('role').eq('id',session.user.id).maybeSingle();

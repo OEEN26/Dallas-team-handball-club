@@ -11,7 +11,7 @@
   <div id="loading" class="empty">Loading players…</div><div id="activeList" class="list"></div>
 </main>
 <div id="jerseyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="jerseyTitle"><div class="sheet"><h2 id="jerseyTitle">Edit Jersey Number</h2><div id="jerseyPlayer" class="muted"></div><div class="field"><label for="jerseyNumber">Jersey number</label><select id="jerseyNumber"></select></div><div class="muted" style="margin-top:7px">Only numbers available for this player’s team are shown.</div><div class="actions" style="margin-top:14px"><button class="btn primary" id="saveJersey" type="button">Save jersey</button><button class="btn" id="cancelJersey" type="button">Cancel</button></div><div id="jerseyMsg" class="modal-msg" role="status"></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1" integrity="sha384-q36VSR1ktH2hgqgm+0LDeyqPW8CyZHSxfDSttSPm5ReOJzB+sYThmh7D4fE+jWTs" crossorigin="anonymous"></script>
 <script>
 const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $=x=>document.getElementById(x),esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
