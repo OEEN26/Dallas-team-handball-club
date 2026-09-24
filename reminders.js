@@ -3,7 +3,7 @@ window.clubReminders = (() => {
   const categories = {practice:'Practice changes and upcoming practices',tournament:'Tournament dates and roster selection',event:'Upcoming events'};
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const dateText = value => new Date(value+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
-  function daysUntil(date){return Math.ceil((new Date(date+'T12:00:00')-new Date())/86400000)}
+  function daysUntil(date){const day=new Date(date+'T00:00:00'),now=new Date();now.setHours(0,0,0,0);return Math.round((day-now)/86400000)}
   async function init({client,userId,playerId,team}){
     const holder=document.getElementById('reminderCenter')||document.getElementById('reminderSettings');
     if(!holder)return;
@@ -24,7 +24,7 @@ window.clubReminders = (() => {
     let reminders=[];
     function render(){const visible=reminders.filter(r=>prefs[r.category]);list.innerHTML=visible.length?visible.map(r=>'<a href="'+r.url+'"><strong>'+escapeHtml(r.title)+'</strong><span>'+escapeHtml(r.detail)+'</span></a>').join(''):'<div class="club-reminder-empty">No reminders right now.</div>'}
     async function refresh(){
-      const today=new Date().toISOString().slice(0,10);
+      const local=new Date(),today=[local.getFullYear(),String(local.getMonth()+1).padStart(2,'0'),String(local.getDate()).padStart(2,'0')].join('-');
       const [pr,ev,to,tp]=await Promise.all([
         client.from('practices').select('id,title,practice_date,updated_at,canceled,location,start_time').in('team',['All',team]).gte('practice_date',today).order('practice_date').limit(20),
         client.from('club_events').select('id,title,event_date').in('team',['All',team]).gte('event_date',today).order('event_date').limit(20),
