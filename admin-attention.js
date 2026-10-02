@@ -12,7 +12,7 @@
     return new Map(rows.map(row => [row.id, row]));
   }
   function registered(player, profiles) {
-    return !player.deleted_at && !!player.user_id && profiles.has(player.user_id);
+    return player.player_category !== 'Guest' && !player.deleted_at && !!player.user_id && profiles.has(player.user_id);
   }
   function recent(player, profiles, now = Date.now()) {
     const created = Date.parse(profiles.get(player.user_id)?.created_at);

@@ -19,7 +19,7 @@ async function loadAll(){
     sb.from('award_definitions').select('id,title,description,image_path,is_active,created_at,updated_at').order('created_at',{ascending:false}),
     sb.from('award_grants').select('id,award_id,player_id,granted_at,granted_by,revoked_at,revoked_by'),
     sb.from('award_history').select('id,award_id,player_id,action,actor_id,happened_at').order('happened_at',{ascending:false}).limit(100),
-    sb.from('players').select('id,name,team,status').is('deleted_at',null).order('name'),
+    sb.from('players').select('id,name,team,status').eq('player_category','Member').is('deleted_at',null).order('name'),
     sb.from('profiles').select('id,full_name')
   ]);
   const failed=[a,g,h,p,pr].find(result=>result.error);

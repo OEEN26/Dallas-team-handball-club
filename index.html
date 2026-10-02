@@ -141,7 +141,7 @@ async function loadDashboard(){
   const today=isoDate(),horizon=plusDays(30);
   try{
     const results=await Promise.all([
-      sb.from('players').select('id,name,team,status,membership_status,jersey_number,shirt_size,position,user_id,created_at').is('deleted_at',null).order('created_at',{ascending:false}),
+      sb.from('players').select('id,name,team,status,membership_status,jersey_number,shirt_size,position,user_id,created_at').eq('player_category','Member').is('deleted_at',null).order('created_at',{ascending:false}),
       sb.from('practices').select('id,title,team,practice_date,start_time,location,address,canceled').eq('canceled',false).gte('practice_date',today).order('practice_date').order('start_time').limit(8),
       sb.from('club_events').select('id,title,event_type,team,event_date,start_time,location').gte('event_date',today).order('event_date').order('start_time').limit(8),
       sb.from('club_announcements').select('title,body,audience,pinned,created_at').order('created_at',{ascending:false}).limit(1),
