@@ -111,7 +111,7 @@ async function boot(){
   renderJerseyAlert(currentPlayer,claim);
   $('myPhoto').src=currentPlayer.profile_photo_url||'./Dallas-thc-logo.png.JPG';$('welcomeName').textContent=currentPlayer.name;
   $('myMeta').textContent=[currentPlayer.team+' Team',currentPlayer.position||'Position not added',currentPlayer.jersey_number?'#'+currentPlayer.jersey_number:'Jersey unassigned'].join(' • ');renderSeasonMedals($('myMedal'),activeMedals.get(currentPlayer.id)||[]);
-  $('membershipShortcut').textContent='Status: '+(playerAccount.membership_status||'Not set');
+  const pendingPayment=await sb.from('membership_payment_submissions').select('id').eq('player_id',currentPlayer.id).eq('status','Pending').limit(1);playerAccount.payment_pending=!!pendingPayment.data?.length;$('membershipShortcut').textContent='Status: '+(playerAccount.payment_pending?'Pending review':playerAccount.membership_status||'Not set');
   $('nextPractice').innerHTML=activityCard('practice',(practices.data||[])[0]);$('nextEvent').innerHTML=activityCard('event',(events.data||[])[0]);
   $('announcements').innerHTML=(announcements.data||[]).length?(announcements.data||[]).map(item=>'<article class="card announcement"><div class="tournament-top"><b>'+esc(item.title)+'</b>'+(item.pinned?'<span class="chip">Pinned</span>':'')+'</div><div class="muted">'+new Date(item.created_at).toLocaleDateString()+'</div><p>'+esc(item.body)+'</p></article>').join(''):'<div class="empty">No announcements right now.</div>';
   renderTournaments(tournaments.data||[]);
@@ -124,8 +124,8 @@ async function boot(){
 function renderAttention({seasonStatus,seasonPacket,playerAccount,practices,events,tournaments,claim}){
   const items=[],add=(message,url,label,good=false)=>items.push('<div class="attention-item"><span class="'+(good?'attention-good':'attention-warning')+'">'+esc(message)+'</span><a class="link" href="'+url+'">'+esc(label)+'</a></div>');
   add(seasonStatus==='Active'?'✓ Active for this season':seasonPacket?'Season packet awaiting approval':'Season registration needs action','./season-registration.html','View status',seasonStatus==='Active');
-  add('Membership payment: '+(playerAccount.membership_status||'Not set')+'. This is separate from season registration.','./club-hub.html?tab=membership','Membership',playerAccount.membership_status==='Paid');
-  if(!currentPlayer.position||!playerAccount.shirt_size)add('Complete your position and shirt size','./player.html','Edit profile');
+  add('Membership payment: '+(playerAccount.payment_pending?'Pending review':playerAccount.membership_status||'Not set')+'. This is separate from season registration.','./club-hub.html?tab=membership','Membership',playerAccount.membership_status==='Paid');
+  const missingProfile=[];if(!String(currentPlayer.position||'').trim())missingProfile.push('position');if(!String(playerAccount.shirt_size||'').trim())missingProfile.push('shirt size');if(missingProfile.length)add('Add your '+missingProfile.join(' and '),'./player.html?edit=1','Edit profile');
   if(claim?.status==='Rejected')add('Jersey number needs correction','./jersey-selection.html','Choose number');
   const next=[...practices.map(p=>({id:p.id,date:p.practice_date,type:'practice',title:p.title})),...events.map(e=>({id:e.id,date:e.event_date,type:'event',title:e.title}))].sort((a,b)=>a.date.localeCompare(b.date))[0];
   if(next)add('Next: '+next.title+' • '+formatDate(next.date)+(currentResponse(next.type,next.id)?' • '+currentResponse(next.type,next.id):' • RSVP needed'),'./club-hub.html?tab=schedule','Open schedule',!!currentResponse(next.type,next.id));
