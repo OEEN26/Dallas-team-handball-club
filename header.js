@@ -36,6 +36,7 @@
     ['Announcements', 'admin-content.html#announcements'],
     ['Event Management', 'events.html'],
     ['Jersey Approvals', 'jersey-approvals.html'],
+    ['Jersey Inventory', 'jersey-inventory.html'],
     ['Tournament Readiness', 'event-readiness.html'],
     ['Reports', 'admin-operations.html?tab=overview#stats'],
     ['Event Attendance', 'event-attendance.html'],
@@ -95,7 +96,7 @@
       return '';
     }
     if (page === 'index.html') return 'home';
-    if (['player-management.html','guest-players.html','season-registrations.html','admin-team-profiles.html'].includes(page)) return 'players';
+    if (['player-management.html','guest-players.html','jersey-inventory.html','season-registrations.html','admin-team-profiles.html'].includes(page)) return 'players';
     if (page === 'admin-content.html' || page === 'events.html' || page === 'event-attendance.html') return 'schedule';
     if (key === 'admin-operations.html?tab=tournaments' || page === 'event-readiness.html') return 'tournaments';
     return 'operations';
