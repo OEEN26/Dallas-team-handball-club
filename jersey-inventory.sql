@@ -105,3 +105,6 @@ BEGIN
 END $$;
 CREATE TRIGGER inventory_guard_claim BEFORE INSERT OR UPDATE ON public.jersey_claims FOR EACH ROW EXECUTE FUNCTION inventory_internal.guard_claim();
 REVOKE ALL ON FUNCTION inventory_internal.guard_claim() FROM PUBLIC;
+DROP TRIGGER inventory_sync_assignment ON public.players;
+CREATE TRIGGER inventory_sync_assignment AFTER INSERT OR UPDATE ON public.players FOR EACH ROW EXECUTE FUNCTION inventory_internal.sync_assignment();
+CREATE TRIGGER inventory_return_before_delete BEFORE DELETE ON public.players FOR EACH ROW EXECUTE FUNCTION inventory_internal.sync_assignment();
