@@ -8,14 +8,16 @@ async function boot(){
  const {data:{session}}=await sb.auth.getSession();if(!session){location.href='./index.html';return}
  const {data:profile,error}=await sb.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
  if(error||!['admin','manager'].includes(profile?.role)){location.href='./player-dashboard.html';return}
- await load();$('addGuest').disabled=false;$('createRegistrationLink').disabled=false;
+ $('addGuest').disabled=false;$('createRegistrationLink').disabled=false;
+ await load();
  const requested=new URLSearchParams(location.search).get('id');if(requested&&players.some(p=>p.id===requested))await openGuest(requested);
 }
 async function load(){
  const [p,d,s]=await Promise.all([sb.from('players').select('id,name,team,position,shirt_size,player_category').eq('player_category','Guest').is('deleted_at',null).order('name'),sb.from('guest_details').select('*'),sb.from('guest_submissions').select('player_id').eq('status','Pending')]);
  if(p.error||d.error||s.error)throw p.error||d.error||s.error;
  players=(p.data||[]).map(p=>({...p,pending:(s.data||[]).filter(s=>s.player_id===p.id).length}));details=new Map((d.data||[]).map(d=>[d.player_id,d]));
- await loadRegistrations();$('directory').hidden=false;$('message').textContent=players.length+' guest players';render();
+ $('directory').hidden=false;$('message').textContent=players.length+' guest players';render();
+ try{await loadRegistrations()}catch(e){$('registrationSection').hidden=false;$('registrations').textContent='Unable to load registrations: '+e.message;}
 }
 function render(){const q=$('search').value.trim().toLowerCase();const rows=players.filter(p=>{const d=details.get(p.id);return !q||[p.name,p.team,d?.info?.home_club,d?.uniform_number].some(v=>String(v??'').toLowerCase().includes(q))});
  $('list').innerHTML=rows.map(p=>{const d=details.get(p.id);return '<article class="card"><div class="row"><div><h2>'+esc(p.name)+'</h2><span class="badge">Guest</span> <span class="muted">'+esc(d?.info?.home_club||'Home club not recorded')+' • '+esc(p.team)+' • '+esc(p.position||'Position not recorded')+'</span></div><button class="btn primary" data-edit="'+p.id+'">Edit guest</button></div><p>'+esc(d?.uniform_ownership||'None')+' uniform'+(d?.uniform_number?' • #'+esc(d.uniform_number):'')+(d?.uniform_size?' • '+esc(d.uniform_size):'')+(d?.uniform_return_status==='Return pending'?' • Return pending':'')+'</p>'+(p.pending?'<span class="badge">'+p.pending+' information submission'+(p.pending===1?'':'s')+' to review</span>':'')+'</article>'}).join('')||'<div class="card">No guests match. Add a guest or mark an existing player as a guest from Club Members.</div>';
