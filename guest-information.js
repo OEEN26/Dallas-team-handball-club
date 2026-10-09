@@ -4,6 +4,9 @@ const $=id=>document.getElementById(id), fields=['name','team','email','phone','
 const params=new URLSearchParams(location.hash.slice(1)),token=params.get('token'),registration=params.get('registration')==='1';
 history.replaceState(null,'',location.pathname);
 const photoEditor=GuestMedia.editor();
+$('fullNameField').hidden=registration;$('name').required=!registration;
+$('firstNameField').hidden=!registration;$('lastNameField').hidden=!registration;
+$('first_name').required=registration;$('last_name').required=registration;
 async function boot(){
  const {data,error}=await sb.rpc(registration?'guest_registration_information':'guest_information',{p_token:token});
  if(error){$('message').textContent='This link is invalid, expired, revoked, or already used. Ask Dallas THC for a new information link.';return}
@@ -12,6 +15,11 @@ async function boot(){
 }
 $('informationForm').onsubmit=async event=>{
  event.preventDefault();if($('submitInfo').disabled)return;if(photoEditor.busy()){$('formMessage').textContent='Please wait for your photo to finish preparing.';return}
+ if(registration){
+  const first=$('first_name').value.trim(),last=$('last_name').value.trim();
+  if(!first||!last){$('formMessage').textContent='Please enter both your first and last name.';(!first?$('first_name'):$('last_name')).focus();return}
+  $('name').value=first+' '+last;
+ }
  const info=Object.fromEntries(fields.map(key=>[key,$(key).value.trim()]));
  $('submitInfo').disabled=true;$('formMessage').textContent='Submitting…';
  try{
