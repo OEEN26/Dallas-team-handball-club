@@ -20,14 +20,18 @@
     .columns{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}.list{display:grid;gap:8px}.item{padding:11px;background:#0d140f;border:1px solid #26372c;border-radius:10px}.item-row{display:flex;justify-content:space-between;gap:10px;align-items:center}.item .badge{font-size:10px;padding:4px 7px;border-radius:999px;background:#243129;color:#b7cabd}.empty{padding:16px;text-align:center;color:#849289;border:1px dashed #34463a;border-radius:10px}.link{color:#72ee98;text-decoration:none;font-weight:800;font-size:12px}
     details.quick{padding:0;overflow:hidden}details.quick summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 16px;cursor:pointer;font-weight:800}details.quick summary::-webkit-details-marker{display:none}details.quick summary::after{content:"＋";color:#00c853;font-size:20px}details.quick[open] summary::after{content:"−"}details.quick .form-body{padding:0 16px 16px;border-top:1px solid #283b2e}.form-body .grid2{margin-top:13px}.msg{margin-top:9px;color:#95efae;font-size:12px;min-height:17px}
     .team-bar{height:8px;background:#252d28;border-radius:999px;overflow:hidden;margin-top:8px}.team-bar span{display:block;height:100%;background:#00c853}
+    body.login-screen::before{content:"";position:fixed;inset:0;background:url("./Dallas-thc-logo.png.JPG") center 55%/min(90vw,720px) auto no-repeat;filter:grayscale(1) invert(1);mix-blend-mode:screen;opacity:.25;pointer-events:none;z-index:0}
+    body.login-screen .wrap{position:relative;z-index:1}
+    body.login-screen #adminHeaderLabel{display:none}
+    body.login-screen .login{background:rgba(18,26,21,.88)}
     .loading{margin-top:20px}.error-note{margin-top:12px;color:#ffc880;font-size:12px}
     @media(max-width:1000px){.stats{grid-template-columns:repeat(3,1fr)}.tools{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:800px){.alert-grid,.schedule-grid,.columns,.grid2{grid-template-columns:1fr 1fr}.hero{align-items:flex-start;flex-direction:column}}
     @media(max-width:590px){.wrap{padding-top:17px}.alert-grid,.schedule-grid,.columns,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.tools{grid-template-columns:1fr 1fr}.tool{min-height:72px;padding:12px}.hero-actions .btn{flex:1}.section-head{align-items:flex-start}.next-card{min-height:0}.brand{font-size:14px}}
   </style>
 </head>
-<body>
-<header><div class="bar"><div class="brand">Dallas <span>THC</span><div class="muted">ADMIN COMMAND CENTER</div></div></div></header>
+<body class="login-screen">
+<header><div class="bar"><div class="brand">Dallas <span>THC</span><div id="adminHeaderLabel" class="muted">ADMIN COMMAND CENTER</div></div></div></header>
 <main class="wrap">
   <section id="login" class="card login">
     <p class="eyebrow">ADMIN ACCESS</p><h1>Sign in</h1>
@@ -129,6 +133,7 @@ function activityCard(kind,item,counts,href){
 }
 async function authenticate(){
   const authResult=await sb.auth.getSession();session=authResult.data.session;
+  document.body.classList.toggle('login-screen',!session);
   if(!session){$('login').classList.remove('hidden');$('loading').classList.add('hidden');$('app').classList.add('hidden');return}
   const profileResult=await sb.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
   adminProfile=profileResult.data;if(adminProfile?.role==='admin')$('adminAwardsTool').classList.remove('hidden');
