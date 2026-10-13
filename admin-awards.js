@@ -1,7 +1,7 @@
 const sb = supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $ = id => document.getElementById(id);
 let awards = [], grants = [], history = [], players = [], people = new Map(), editingId = null, previewUrl = null;
-const imageUrl = path => path ? (['awards/minnesota-fall-classic-bronze.webp','awards/minnesota-fall-classic-mvp.webp','awards/minnesota-fall-classic-mvg.webp'].includes(path) ? './'+path : sb.storage.from('award-media').getPublicUrl(path).data.publicUrl) : '';
+const imageUrl = path => path ? (['awards/minnesota-fall-classic-bronze.webp','awards/minnesota-fall-classic-mvp.webp','awards/minnesota-fall-classic-mvg.webp','awards/dallas-thc-coach.webp'].includes(path) ? './'+path : sb.storage.from('award-media').getPublicUrl(path).data.publicUrl) : '';
 const label = (id,map) => map.get(id) || 'Former member';
 function notice(id,message,error=false){$(id).textContent=message;$(id).classList.toggle('error',error)}
 function badgeImage(award){if(award.image_path){const image=document.createElement('img');image.src=imageUrl(award.image_path);image.alt='';return image}const fallback=document.createElement('span');fallback.className='fallback';fallback.setAttribute('aria-hidden','true');fallback.textContent='🏅';return fallback}

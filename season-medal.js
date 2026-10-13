@@ -76,7 +76,7 @@ window.loadCustomMedals = async function (client) {
     const award=byId.get(grant.award_id);
     if (!award) return null;
     return {type:'custom',player_id:grant.player_id,title:award.title,description:award.description,
-      image_url:award.image_path?(['awards/minnesota-fall-classic-bronze.webp','awards/minnesota-fall-classic-mvp.webp','awards/minnesota-fall-classic-mvg.webp'].includes(award.image_path) ? './'+award.image_path : client.storage.from('award-media').getPublicUrl(award.image_path).data.publicUrl):null,
+      image_url:award.image_path?(['awards/minnesota-fall-classic-bronze.webp','awards/minnesota-fall-classic-mvp.webp','awards/minnesota-fall-classic-mvg.webp','awards/dallas-thc-coach.webp'].includes(award.image_path) ? './'+award.image_path : client.storage.from('award-media').getPublicUrl(award.image_path).data.publicUrl):null,
       awarded_at:grant.granted_at};
   }).filter(Boolean).sort((a,b)=>new Date(b.awarded_at)-new Date(a.awarded_at));
 };
