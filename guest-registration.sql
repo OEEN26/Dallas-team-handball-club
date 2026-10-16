@@ -9,7 +9,7 @@ REVOKE ALL ON guest_internal.registration_links FROM PUBLIC,anon,authenticated;
 CREATE TABLE public.guest_registrations (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(), link_id uuid NOT NULL UNIQUE REFERENCES guest_internal.registration_links(id),
  info jsonb NOT NULL, status text NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending','Approved','Rejected')),
- player_id uuid REFERENCES public.players(id), submitted_at timestamptz NOT NULL DEFAULT now(), reviewed_at timestamptz, reviewed_by uuid REFERENCES auth.users(id)
+ player_id uuid REFERENCES public.players(id) ON DELETE CASCADE, submitted_at timestamptz NOT NULL DEFAULT now(), reviewed_at timestamptz, reviewed_by uuid REFERENCES auth.users(id)
 );
 ALTER TABLE public.guest_registrations ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.guest_registrations FROM PUBLIC,anon,authenticated;
