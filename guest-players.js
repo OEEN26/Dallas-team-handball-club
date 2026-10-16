@@ -27,6 +27,7 @@ async function openGuest(id){
  editing=id||null;const p=players.find(p=>p.id===id),d=details.get(id),info=d?.info||{name:p?.name,team:p?.team,position:p?.position,shirt_size:p?.shirt_size};
  fields.forEach(key=>{$(key).value=info[key]||''});photoEditor.reset();if(!$('team').value)$('team').value='Men';
  $('uniform_number').value=d?.uniform_number??'';$('uniform_size').value=d?.uniform_size||'';$('uniform_ownership').value=d?.uniform_ownership||'None';$('uniform_return').value=d?.uniform_return_status||'Not applicable';$('notes').value=d?.admin_notes||'';
+ $('deleteMessage').textContent='';
  $('editTitle').textContent=id?'Edit '+p.name:'Add guest';$('existing').hidden=!id;$('editMessage').textContent='';$('linkbox').hidden=true;$('linkStatus').textContent='';
  if(!$('editor').open)$('editor').showModal();if(id)await loadRecord(id);
 }
@@ -47,6 +48,15 @@ $('copyLink').onclick=async()=>{try{await navigator.clipboard.writeText($('linkI
 $('revokeLinks').onclick=async()=>{try{await rpc('admin_guest_links',{p_player_id:editing,p_revoke:true});$('linkbox').hidden=true;$('linkInput').value='';$('linkStatus').textContent='Links revoked.'}catch(e){$('linkStatus').textContent=e.message}};
 $('submissions').onclick=async event=>{const b=event.target.closest('[data-review]');if(!b)return;if(b.dataset.approve==='true'&&!confirm('Apply these submitted details to this guest profile? Uniform and private admin notes will stay as saved.'))return;b.disabled=true;try{await rpc('admin_review_guest_submission',{p_submission_id:b.dataset.review,p_approve:b.dataset.approve==='true'});await load();await openGuest(editing)}catch(e){$('editMessage').textContent=e.message;b.disabled=false}};
 $('convertMember').onclick=async()=>{if(!confirm('Convert this guest into a club member? Their tournament history will be kept. Season approval and a club jersey assignment are handled separately.'))return;try{await rpc('admin_classify_player',{p_player_id:editing,p_category:'Member'});$('editor').close();await load();$('message').textContent='Converted to club member. Open Club Members to manage season eligibility.'}catch(e){$('editMessage').textContent=e.message}};
+$('deleteGuest').onclick=async()=>{
+ const button=$('deleteGuest'),id=editing,p=players.find(p=>p.id===id);if(button.disabled||!p||p.player_category!=='Guest')return;
+ if(!confirm('Permanently delete '+p.name+' and their linked club records? This includes tournament history, submissions, information links and any linked login account. This cannot be undone.'))return;
+ if(prompt('Type DELETE '+p.name+' exactly to confirm permanent deletion.')!=='DELETE '+p.name){$('deleteMessage').textContent='Deletion cancelled. Confirmation did not match.';return}
+ button.disabled=true;$('deleteMessage').textContent='Deleting…';
+ try{await rpc('admin_delete_player_immediately',{p_player_id:id})}catch(e){$('deleteMessage').textContent='Unable to delete guest: '+e.message;button.disabled=false;return}
+ $('editor').close();editing=null;players=players.filter(p=>p.id!==id);details.delete(id);render();button.disabled=false;
+ try{await load();$('message').textContent=p.name+' has been permanently deleted.'}catch(e){$('message').textContent=p.name+' was deleted. Refresh to reload the guest list.'}
+};
 $('list').onclick=event=>{const b=event.target.closest('[data-edit]');if(b)openGuest(b.dataset.edit).catch(e=>{$('editMessage').textContent=e.message})};
 $('addGuest').onclick=()=>openGuest(null);$('closeEditor').onclick=()=>{$('editor').close();editing=null};$('search').oninput=render;
 boot().catch(e=>{$('message').textContent='Unable to load guests: '+e.message});
