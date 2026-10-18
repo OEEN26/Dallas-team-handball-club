@@ -25,7 +25,7 @@
 </head>
 <body>
 <header><div class="bar"><div class="brand"><img src="./Dallas-thc-logo.png.JPG" class="logo" alt=""><div>Dallas <span>THC</span><div class="muted">PLAYER HOME</div></div></div></div></header>
-<main class="wrap">
+<main class="wrap"><section class="card" id="seasonAgreementPrompt" aria-labelledby="seasonAgreementTitle"><h2 id="seasonAgreementTitle">Season player commitment agreement</h2></section>
   <div id="loading" class="card" role="status">Loading your player home…</div>
   <div id="app" hidden>
     <div id="jerseyAlert"></div>
@@ -156,5 +156,5 @@ function renderJerseyAlert(me,claim){
 boot().catch(()=>{$('loading').textContent='Unable to load your dashboard. Check your connection and try again.'});
 </script>
 <script defer src="./header.js"></script>
-</body>
+<script src="./season-agreement-status.js?v=20261017-1"></script></body>
 </html>
