@@ -88,8 +88,10 @@ function activityCard(type,item){
 async function boot(){
   const auth=await sb.auth.getSession();currentSession=auth.data.session;if(!currentSession){location.replace('./index.html');return}
   const uid=currentSession.user.id;
+  const family=await sb.from('youth_registrations').select('player_id').eq('guardian_user_id',uid).limit(1);
+  if(family.error){$('loading').textContent='Could not check your family registration. Please refresh.';return}
   const publicResult=await sb.from('player_directory_public').select('id,user_id,name,team,position,jersey_number,profile_photo_url').eq('user_id',uid).maybeSingle();
-  currentPlayer=publicResult.data;if(!currentPlayer){location.replace('./player.html');return}
+  currentPlayer=publicResult.data;if((!currentPlayer&&(family.data?.length||currentSession.user.user_metadata?.registration_type==='guardian'))||sessionStorage.getItem('dthc-guardian-invitation')){location.replace('./youth-registration.html');return}if(currentPlayer?.team==='Youth'){location.replace('./youth-registration.html');return}if(!currentPlayer){location.replace('./player.html');return}
   const [account,announcements,practices,events,roster,claims,rsvpRows,tournaments,tournamentRows,seasonResult,medalResult,customMedals]=await Promise.all([
     sb.from('players').select('membership_status,shirt_size,status').eq('id',currentPlayer.id).maybeSingle(),
     sb.from('club_announcements').select('*').in('audience',['All',currentPlayer.team]).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(6),
@@ -158,3 +160,4 @@ boot().catch(()=>{$('loading').textContent='Unable to load your dashboard. Check
 <script defer src="./header.js"></script>
 <script src="./season-agreement-status.js?v=20261017-1"></script></body>
 </html>
+

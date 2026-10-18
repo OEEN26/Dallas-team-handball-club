@@ -13,14 +13,15 @@ async function boot(){
  fields.forEach(key=>{$(key).value=data.info?.[key]||''});$('title').textContent=registration?'Guest player registration':'Guest information for '+data.name;
  photoEditor.reset();$('message').textContent='';$('informationForm').hidden=false;
 }
+const ageLabel=document.createElement('label');ageLabel.textContent='Participant’s date of birth';ageLabel.htmlFor='guestDob';const ageInput=document.createElement('input');ageInput.id='guestDob';ageInput.type='date';ageInput.required=true;ageInput.max=new Date().toISOString().slice(0,10);const ageHelp=document.createElement('p');ageHelp.textContent='Participants under 18 register through a parent or legal guardian.';const youthLink=document.createElement('a');youthLink.href='./youth-registration.html';youthLink.textContent='Open Youth & family registration';const adultFields=document.createElement('div');adultFields.hidden=true;adultFields.append(...Array.from($('informationForm').children));$('informationForm').append(ageLabel,ageInput,ageHelp,youthLink,adultFields);ageInput.onchange=()=>{const cut=new Date();cut.setFullYear(cut.getFullYear()-18);const adult=!!ageInput.value&&new Date(ageInput.value+'T12:00:00')<=cut;adultFields.hidden=!adult;youthLink.hidden=adult;ageHelp.textContent=adult?'Continue with adult guest registration.':'Participants under 18 must use Youth & family registration with a guardian.'};
 $('informationForm').onsubmit=async event=>{
- event.preventDefault();if($('submitInfo').disabled)return;if(photoEditor.busy()){$('formMessage').textContent='Please wait for your photo to finish preparing.';return}
+ event.preventDefault();const birth=ageInput.value,cut=new Date();cut.setFullYear(cut.getFullYear()-18);if(!birth||new Date(birth+'T12:00:00')>new Date()){$('formMessage').textContent='Enter a valid participant birth date.';return}if(new Date(birth+'T12:00:00')>cut){location.href='./youth-registration.html';return}if($('submitInfo').disabled)return;if(photoEditor.busy()){$('formMessage').textContent='Please wait for your photo to finish preparing.';return}
  if(registration){
   const first=$('first_name').value.trim(),last=$('last_name').value.trim();
   if(!first||!last){$('formMessage').textContent='Please enter both your first and last name.';(!first?$('first_name'):$('last_name')).focus();return}
   $('name').value=first+' '+last;
  }
- const info=Object.fromEntries(fields.map(key=>[key,$(key).value.trim()]));
+ const info={...Object.fromEntries(fields.map(key=>[key,$(key).value.trim()])),date_of_birth:birth};
  $('submitInfo').disabled=true;$('formMessage').textContent='Submitting…';
  try{
   const {error}=await sb.rpc(registration?'submit_guest_registration':'submit_guest_information',{p_token:token,p_info:info});if(error)throw error;
@@ -28,4 +29,5 @@ $('informationForm').onsubmit=async event=>{
  }catch(error){$('formMessage').textContent=error.message||'Unable to submit. Please try again.';$('submitInfo').disabled=false}
 };
 boot().catch(()=>{$('message').textContent='Unable to check this link. Please reopen your original link and try again.'});
+
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dallas-thc-v11';
+const CACHE_NAME = 'dallas-thc-v12-youth';
 const APP_SHELL = ['./manifest.json', './offline.html', './icons/club-icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', event => {
@@ -36,3 +36,4 @@ self.addEventListener('notificationclick', event => {
   if (target.origin !== self.location.origin || !target.href.startsWith(self.registration.scope)) return;
   event.waitUntil(clients.openWindow(target.href));
 });
+

@@ -23,6 +23,7 @@
   const common = isAdmin => [
     ['Dashboard', isAdmin ? 'index.html' : 'player-dashboard.html'],
     ['Profile Settings', 'profile-settings.html'],
+    ['Youth & Family', 'youth-registration.html'],
     ['Events', 'events.html'],
     ['Tournaments', isAdmin ? 'admin-operations.html?tab=tournaments' : 'club-hub.html?tab=tournaments'],
     ['Membership', 'club-hub.html?tab=membership']
@@ -32,6 +33,7 @@
     ['Players', 'player-management.html'],
     ['Guest Players', 'guest-players.html'],
     ['Season Registrations', 'season-registrations.html'],
+    ['Youth Players', 'admin-youth.html'],
     ['Practices', 'admin-content.html#practices'],
     ['Announcements', 'admin-content.html#announcements'],
     ['Event Management', 'events.html'],
@@ -247,3 +249,4 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
   else start();
 })();
+
