@@ -25,7 +25,7 @@
     ['Profile Settings', 'profile-settings.html'],
     ['Youth & Family', 'youth-registration.html'],
     ['Events', 'events.html'],
-    ['Tournaments', isAdmin ? 'admin-operations.html?tab=tournaments' : 'club-hub.html?tab=tournaments'],
+    ['Tournaments', isAdmin ? 'admin-tournaments.html' : 'club-hub.html?tab=tournaments'],
     ['Membership', 'club-hub.html?tab=membership']
   ];
   const admin = [
@@ -77,7 +77,7 @@
     ['⌂','Home','index.html','home'],
     ['♟','Players','player-management.html','players'],
     ['◷','Schedule','admin-content.html#practices','schedule'],
-    ['🏆','Tournaments','admin-operations.html?tab=tournaments','tournaments'],
+    ['🏆','Tournaments','admin-tournaments.html','tournaments'],
     ['⚙','Operations','admin-operations.html?tab=overview','operations']
   ] : [
     ['⌂','Home','player-dashboard.html','home'],
@@ -100,7 +100,7 @@
     if (page === 'index.html') return 'home';
     if (['player-management.html','guest-players.html','jersey-inventory.html','season-registrations.html','admin-team-profiles.html'].includes(page)) return 'players';
     if (page === 'admin-content.html' || page === 'events.html' || page === 'event-attendance.html') return 'schedule';
-    if (key === 'admin-operations.html?tab=tournaments' || page === 'event-readiness.html') return 'tournaments';
+    if (key === 'admin-operations.html?tab=tournaments' || page === 'event-readiness.html' || page === 'admin-tournaments.html' || page === 'tournament-finish.html') return 'tournaments';
     return 'operations';
   };
 
@@ -249,4 +249,3 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
   else start();
 })();
-
