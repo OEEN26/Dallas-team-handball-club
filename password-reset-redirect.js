@@ -1,0 +1,2 @@
+/* Route recovery links before the login page can redirect signed-in players. */
+(function(){const query=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.slice(1));const recovery=hash.get('type')==='recovery'||query.get('type')==='recovery'||query.get('password_reset')==='1'||hash.get('error_code')==='otp_expired';if(!recovery)return;const target=new URL('./reset-password.html',location.href);target.search=location.search;target.hash=location.hash;window.clubPasswordRecoveryRedirecting=true;location.replace(target.href)})();
