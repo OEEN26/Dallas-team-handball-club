@@ -240,11 +240,12 @@
         if(link.dataset.section===activeSection)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
       }
     };
+    window.addEventListener('pageshow', e => {if(e.persisted){window.clubAwardNoticeStop?.();document.querySelector('script[data-club-notifications]')?.remove();render().catch(()=>{});}});
     window.addEventListener('popstate', () => render().catch(() => {}));
     window.addEventListener('hashchange', () => render().catch(() => {}));
     window.addEventListener('club:routechange', () => render().catch(() => {}));
     client.auth.onAuthStateChange(event => {
-      if (event === 'SIGNED_OUT') { close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready'); }
+      if (event === 'SIGNED_OUT') { window.clubAwardNoticeStop?.();document.querySelector('script[data-club-notifications]')?.remove();close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready'); }
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') setTimeout(() => render().catch(() => {}), 0);
     });
     render().catch(() => {});
