@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><link rel="manifest" href="./manifest.json"><link rel="apple-touch-icon" href="./icons/icon-192.png">
+<head><meta name="referrer" content="no-referrer"><script src="./password-reset-redirect.js?v=20261020-1"></script><link rel="manifest" href="./manifest.json"><link rel="apple-touch-icon" href="./icons/icon-192.png">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#00c853">
@@ -36,7 +36,7 @@
   <section id="login" class="card login">
     <p class="eyebrow">ADMIN ACCESS</p><h1>Sign in</h1>
     <div class="grid2"><div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username"></div><div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password"></div></div>
-    <div class="actions" style="margin-top:12px"><button class="btn primary" id="signIn" type="button">Sign In</button><a class="btn" href="./signup.html">Create Player Account</a></div><p id="authMsg" class="muted" role="status"></p>
+    <div class="actions" style="margin-top:12px"><button class="btn primary" id="signIn" type="button">Sign In</button><a class="btn" href="./signup.html">Create Player Account</a></div><p style="margin:10px 0 0"><a class="link" href="./forgot-password.html" style="display:inline-flex;align-items:center;min-height:44px">Forgot password?</a></p><p id="authMsg" class="muted" role="status"></p>
   </section>
   <div id="loading" class="card loading hidden" role="status">Loading the club command center…</div>
   <div id="app" class="hidden">
@@ -116,7 +116,7 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1" integrity="sha384-q36VSR1ktH2hgqgm+0LDeyqPW8CyZHSxfDSttSPm5ReOJzB+sYThmh7D4fE+jWTs" crossorigin="anonymous"></script>
 <script src="./admin-attention.js"></script><script>
-const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
+const sb=supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ',{auth:{detectSessionInUrl:!window.clubPasswordRecoveryRedirecting}});
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 let session=null,adminProfile=null,loadingDashboard=false;
@@ -132,6 +132,7 @@ function activityCard(kind,item,counts,href){
   return '<p class="eyebrow">'+kind+'</p><div class="date">'+formatDate(item.practice_date||item.event_date)+'</div><h3>'+esc(item.title)+'</h3><div class="muted meta">'+esc(item.team||'All')+(time(item.start_time)?' • '+time(item.start_time):'')+(item.location?' • '+esc(item.location):'')+'</div><div class="rsvp"><span class="pill">'+counts.going+' Going</span><span class="pill warn">'+counts.maybe+' Maybe</span><span class="pill">'+counts.notGoing+' Not going</span></div><a class="btn" href="'+href+'">Open details</a>';
 }
 async function authenticate(){
+  if(window.clubPasswordRecoveryRedirecting)return;
   const authResult=await sb.auth.getSession();session=authResult.data.session;
   document.body.classList.toggle('login-screen',!session);
   if(!session){$('login').classList.remove('hidden');$('loading').classList.add('hidden');$('app').classList.add('hidden');return}
@@ -227,4 +228,3 @@ authenticate().catch(()=>{$('loading').classList.add('hidden');$('authMsg').text
 <script defer src="./header.js"></script>
 <script src="./youth-dashboard-status.js"></script></body>
 </html>
-
