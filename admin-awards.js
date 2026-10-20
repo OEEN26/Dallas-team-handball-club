@@ -1,5 +1,6 @@
 const sb = supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co','sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
 const $ = id => document.getElementById(id);
+let tournaments = [], tournamentPreview = null, tournamentRequest = 0, tournamentBusy = false;
 let awards = [], grants = [], history = [], players = [], people = new Map(), editingId = null, previewUrl = null;
 const imageUrl = path => path ? (['awards/minnesota-fall-classic-bronze.webp','awards/minnesota-fall-classic-mvp.webp','awards/minnesota-fall-classic-mvg.webp','awards/dallas-thc-coach.webp'].includes(path) ? './'+path : sb.storage.from('award-media').getPublicUrl(path).data.publicUrl) : '';
 const label = (id,map) => map.get(id) || 'Former member';
@@ -15,16 +16,17 @@ async function boot(){
 }
 async function loadAll(){
   $('pageStatus').textContent='Loading awards…';
-  const [a,g,h,p,pr]=await Promise.all([
+  const [a,g,h,p,pr,t]=await Promise.all([
     sb.from('award_definitions').select('id,title,description,image_path,is_active,created_at,updated_at').order('created_at',{ascending:false}),
     sb.from('award_grants').select('id,award_id,player_id,granted_at,granted_by,revoked_at,revoked_by'),
     sb.from('award_history').select('id,award_id,player_id,action,actor_id,happened_at').order('happened_at',{ascending:false}).limit(100),
-    sb.from('players').select('id,name,team,status').eq('player_category','Member').is('deleted_at',null).order('name'),
-    sb.from('profiles').select('id,full_name')
+    sb.from('players').select('id,name,team,status').in('player_category',['Member','Guest']).is('deleted_at',null).order('name'),
+    sb.from('profiles').select('id,full_name'),
+    sb.from('tournaments').select('id,title,start_date,end_date,status').eq('status','Completed').order('start_date',{ascending:false,nullsFirst:false})
   ]);
-  const failed=[a,g,h,p,pr].find(result=>result.error);
+  const failed=[a,g,h,p,pr,t].find(result=>result.error);
   if(failed){$('pageStatus').textContent='Could not load awards: '+failed.error.message;return}
-  awards=a.data||[];grants=g.data||[];history=h.data||[];players=p.data||[];
+  tournaments=t.data||[];awards=a.data||[];grants=g.data||[];history=h.data||[];players=p.data||[];
   people=new Map((pr.data||[]).map(row=>[row.id,row.full_name||'Admin']));
   $('pageStatus').textContent='Season medals are automatic. Custom awards are managed here.';
   render();
@@ -33,7 +35,7 @@ function render(){
   $('awardCount').textContent=awards.length+' award'+(awards.length===1?'':'s');
   const active=grants.filter(x=>!x.revoked_at&&awards.some(a=>a.id===x.award_id&&a.is_active)).length;
   $('grantCount').textContent=active+' active player award'+(active===1?'':'s');
-  renderCatalog();renderPicker();renderPlayers();renderRoster();renderHistory();
+  renderCatalog();renderPicker();renderPlayers();renderRoster();renderHistory();renderTournamentPicker();if($('recipientMode').value==='tournament')refreshTournamentPreview();
 }
 function renderCatalog(){
   const list=$('awardsList');list.replaceChildren();
@@ -121,7 +123,7 @@ async function setAwardState(award,active){
   const {error}=await sb.from('award_definitions').update({is_active:active}).eq('id',award.id).select('id').single();
   if(error){notice('awardMessage',error.message,true);return}if(editingId===award.id)clearEdit();await loadAll();notice('awardMessage',active?'Award restored.':'Award archived.');
 }
-$('awardPicker').onchange=()=>{renderRoster();renderPlayers();notice('grantMessage','')};
+$('awardPicker').onchange=()=>{renderRoster();renderPlayers();notice('grantMessage','');refreshTournamentPreview()};
 $('teamFilter').onchange=renderPlayers;$('playerSearch').oninput=renderPlayers;
 $('grantAward').onclick=async()=>{
   const awardId=$('awardPicker').value,playerId=$('playerPicker').value,award=awards.find(a=>a.id===awardId),player=players.find(p=>p.id===playerId);
@@ -141,3 +143,45 @@ async function changeGrant(grant,restore){
   if(error){notice('grantMessage',error.message,true);return}await loadAll();notice('grantMessage',restore?'Award restored to player.':'Award revoked; history kept.');
 }
 boot().catch(error=>{$('pageStatus').textContent=error.message||'Could not load awards.'});
+
+
+function renderTournamentPicker(){
+ const picker=$('tournamentAwardPicker'),selected=picker.value;picker.replaceChildren(new Option('Choose a tournament',''));
+ for(const tournament of tournaments)picker.add(new Option(tournament.title+(tournament.start_date?' · '+tournament.start_date:''),tournament.id));
+ if(tournaments.some(t=>t.id===selected))picker.value=selected;
+}
+function tournamentRecipients(preview){return [...new Set((preview?.participants||[]).filter(p=>p.status==='new'||p.status==='revoked').map(p=>p.player_id))]}
+async function refreshTournamentPreview(){
+ const request=++tournamentRequest,awardId=$('awardPicker').value,tournamentId=$('tournamentAwardPicker').value;
+ tournamentPreview=null;$('grantTournamentAward').disabled=true;$('tournamentAwardPreview').replaceChildren();$('editTournamentParticipants').hidden=!tournamentId;
+ if(tournamentId)$('editTournamentParticipants').href='./tournament-finish.html?id='+encodeURIComponent(tournamentId);
+ if($('recipientMode').value!=='tournament')return;
+ if(!awardId||!tournamentId){$('tournamentAwardSummary').textContent=tournaments.length?'Choose an award and completed tournament to preview the participants.':'No completed tournaments yet. Save a final roster and finish the tournament first.';return}
+ $('tournamentAwardSummary').textContent='Loading final participants…';
+ const {data,error}=await sb.rpc('preview_tournament_award',{p_award_id:awardId,p_tournament_id:tournamentId});
+ if(request!==tournamentRequest)return;
+ if(error){$('tournamentAwardSummary').textContent='Could not load participants: '+error.message;return}
+ tournamentPreview={...data,awardId,tournamentId};renderTournamentPreview();
+}
+function renderTournamentPreview(){
+ const list=$('tournamentAwardPreview');list.replaceChildren();const rows=tournamentPreview?.participants||[],eligible=tournamentRecipients(tournamentPreview).length;
+ const already=rows.filter(p=>p.status==='already').length,unlinked=rows.filter(p=>p.status==='unlinked').length,unavailable=rows.filter(p=>p.status==='unavailable').length;
+ $('tournamentAwardSummary').textContent=rows.length?rows.length+' final participants · '+eligible+' to award · '+already+' already awarded'+(unlinked?' · '+unlinked+' need a linked profile':'')+(unavailable?' · '+unavailable+' unavailable profiles':''):'No final participants saved. Open the final roster to record who played.';
+ for(const p of rows){const row=document.createElement('div');row.className='entry';const copy=document.createElement('div'),name=document.createElement('strong'),state=document.createElement('span');name.textContent=p.name;state.className='muted small';state.textContent=({new:'Will receive award',revoked:'Will receive award again',already:'Already has award — skipped',unlinked:'Not awarded yet — link a player profile in the final roster',unavailable:'Not awarded — profile unavailable'})[p.status]||'Unavailable';copy.append(name,state);row.append(copy);list.append(row)}
+ $('grantTournamentAward').textContent=eligible?'Award to '+eligible+' participant'+(eligible===1?'':'s'):'Award to tournament participants';$('grantTournamentAward').disabled=tournamentBusy||!eligible;
+}
+$('recipientMode').onchange=()=>{const bulk=$('recipientMode').value==='tournament';$('individualAwardFields').hidden=bulk;$('tournamentAwardFields').hidden=!bulk;notice('grantMessage','');refreshTournamentPreview()};
+$('tournamentAwardPicker').onchange=()=>{notice('grantMessage','');refreshTournamentPreview()};$('refreshTournamentAward').onclick=refreshTournamentPreview;
+$('grantTournamentAward').onclick=async()=>{
+ if(tournamentBusy||!tournamentPreview)return;const preview=tournamentPreview,award=awards.find(a=>a.id===preview.awardId&&a.is_active),count=tournamentRecipients(preview).length;
+ if(!award||!count||preview.awardId!==$('awardPicker').value||preview.tournamentId!==$('tournamentAwardPicker').value)return;
+ const restored=preview.participants.filter(p=>p.status==='revoked').length,unlinked=preview.participants.filter(p=>p.status==='unlinked').length;
+ if(!confirm('Give “'+award.title+'” to '+count+' participants from “'+preview.title+'”?'+(restored?' This includes '+restored+' previously revoked award(s).':'')+(unlinked?' '+unlinked+' unlinked participant(s) will need a profile first.':'')+' Players who already have it will be skipped.'))return;
+ tournamentBusy=true;for(const id of ['awardPicker','recipientMode','tournamentAwardPicker','refreshTournamentAward','grantTournamentAward'])$(id).disabled=true;
+ notice('grantMessage','Awarding tournament participants…');
+ try{const {data,error}=await sb.rpc('grant_tournament_award',{p_award_id:preview.awardId,p_tournament_id:preview.tournamentId,p_expected_revision:preview.revision});if(error)throw error;
+  const message='Awarded '+(data.granted+data.restored)+' participants'+(data.restored?' ('+data.restored+' reawarded)':'')+'. '+data.already+' already had this award.'+(data.unlinked?' '+data.unlinked+' unlinked names were not awarded. Link them in the final roster, then run this again.':'')+(data.unavailable?' '+data.unavailable+' unavailable profiles were skipped.':'');
+  await loadAll();notice('grantMessage',message);
+ }catch(error){notice('grantMessage','Could not award participants: '+error.message,true);refreshTournamentPreview()}
+ finally{tournamentBusy=false;for(const id of ['awardPicker','recipientMode','tournamentAwardPicker','refreshTournamentAward'])$(id).disabled=false;renderTournamentPreview()}
+};

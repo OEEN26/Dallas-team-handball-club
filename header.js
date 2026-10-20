@@ -23,6 +23,7 @@
   const common = isAdmin => [
     ['Dashboard', isAdmin ? 'index.html' : 'player-dashboard.html'],
     ['Profile Settings', 'profile-settings.html'],
+    ['Notifications', 'notifications.html'],
     ['Youth & Family', 'youth-registration.html'],
     ['Events', 'events.html'],
     ['Tournaments', isAdmin ? 'admin-tournaments.html' : 'club-hub.html?tab=tournaments'],
@@ -148,7 +149,7 @@
     const client = window.supabase.createClient('https://edfshtjrxbtydoaghhip.supabase.co', 'sb_publishable_O0ozz6dTfqcSjmnzl5uwHQ_oc_-EXeZ');
     const render = async () => {
       const {data:{session},error} = await client.auth.getSession();
-      if (error || !session) { close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready');return; }
+      if (error || !session) { window.clubAwardNoticeStop?.();document.querySelector('script[data-club-notifications]')?.remove();close();host.hidden = true;roleDock.hidden=true;document.body.classList.remove('club-header-ready','club-role-dock-ready');return; }
       const {data:profile,error:roleError} = await client.from('profiles').select('role,full_name,preferred_language').eq('id',session.user.id).maybeSingle();
       if (roleError || !profile) return;
       const isAdmin = profile.role === 'admin' || profile.role === 'manager';
@@ -220,6 +221,8 @@
       menu.append(logout);
       avatar.src = player?.profile_photo_url || fallback;
       host.hidden = false;
+      if(window.clubAwardNoticeUser&&window.clubAwardNoticeUser!==session.user.id){window.clubAwardNoticeStop?.();document.querySelector('script[data-club-notifications]')?.remove();}
+      if(!document.querySelector('script[data-club-notifications]')){const notices=document.createElement('script');notices.src=path('notification-bell.js?v=20261020');notices.dataset.clubNotifications='true';document.head.append(notices);}
       document.body.classList.add('club-header-ready');
       const preferredLanguage = profile.preferred_language || 'en';
       if (window.clubI18n) window.clubI18n.setLanguage(preferredLanguage);
@@ -249,3 +252,4 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
   else start();
 })();
+

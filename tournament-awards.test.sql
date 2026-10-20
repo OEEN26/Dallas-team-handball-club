@@ -1,0 +1,41 @@
+-- Uses rollback-only fixtures. Never awards actual participants.
+begin;
+create temp table bulk_test(k text primary key,v text);
+grant all on bulk_test to authenticated;
+insert into bulk_test values('admin',(select id::text from public.profiles where role='admin' limit 1)),('member',(select id::text from public.profiles where role='player' limit 1));
+select set_config('request.jwt.claim.sub',(select v from bulk_test where k='admin'),true);
+set local role authenticated;
+do $$declare a uuid;t uuid;p1 uuid;p2 uuid;p3 uuid;preview jsonb;result jsonb;begin
+ insert into public.award_definitions(title,description) values('Fixture Tournament Award','Rollback-only bulk award test') returning id into a;
+ insert into public.tournaments(title,status) values('Fixture Completed Tournament','Completed') returning id into t;
+ insert into public.players(name,team,status,player_category) values('Fixture Existing Member','Men','Inactive','Member') returning id into p1;
+ insert into public.players(name,team,status,player_category) values('Fixture Revoked Member','Women','Inactive','Member') returning id into p2;
+ insert into public.players(name,team,status,player_category) values('Fixture Linked Guest','Men','Inactive','Guest') returning id into p3;
+ perform public.admin_finish_tournament(t,jsonb_build_array(jsonb_build_object('player_id',p1),jsonb_build_object('player_id',p2),jsonb_build_object('player_id',p3),jsonb_build_object('player_name','Fixture Unlinked Name','team','Men','player_category','Guest')),(select updated_at from public.tournaments where id=t));
+ insert into public.award_grants(award_id,player_id) values(a,p1),(a,p2);
+ update public.award_grants set revoked_at=now() where award_id=a and player_id=p2;
+ preview:=public.preview_tournament_award(a,t);
+ if jsonb_array_length(preview->'participants')<>4 then raise exception 'FAIL preview omitted participants';end if;
+ begin perform public.grant_tournament_award(a,t,'wrong revision');raise exception 'FAIL stale preview accepted';exception when raise_exception then if SQLERRM='FAIL stale preview accepted' then raise;end if;end;
+ result:=public.grant_tournament_award(a,t,preview->>'revision');
+ if result<>jsonb_build_object('granted',1,'restored',1,'already',1,'unlinked',1,'unavailable',0) then raise exception 'FAIL wrong grant summary: %',result;end if;
+ if (select count(*) from public.award_grants where award_id=a and revoked_at is null)<>3 then raise exception 'FAIL wrong active grants';end if;
+ if (select count(*) from public.award_history where award_id=a and action='granted')<>4 then raise exception 'FAIL missing history or duplicate grant';end if;
+ result:=public.grant_tournament_award(a,t,preview->>'revision');
+ if (result->>'granted')::int<>0 or (result->>'restored')::int<>0 or (result->>'already')::int<>3 then raise exception 'FAIL repeat was not idempotent';end if;
+ if (select count(*) from public.award_history where award_id=a and action='granted')<>4 then raise exception 'FAIL duplicate award history on retry';end if;
+ update public.players set name='Fixture Linked Guest Renamed' where id=p3;
+ insert into bulk_test values('award',a::text),('tournament',t::text),('preview',preview::text);
+ update public.tournaments set status='Planning' where id=t;
+ begin perform public.preview_tournament_award(a,t);raise exception 'FAIL planned tournament included';exception when raise_exception then if SQLERRM='FAIL planned tournament included' then raise;end if;end;
+ update public.tournaments set status='Completed' where id=t;
+ update public.award_definitions set is_active=false where id=a;
+ begin perform public.grant_tournament_award(a,t,preview->>'revision');raise exception 'FAIL archived award granted';exception when raise_exception then if SQLERRM='FAIL archived award granted' then raise;end if;end;
+end $$;
+select set_config('request.jwt.claim.sub',(select v from bulk_test where k='member'),true);
+do $$begin
+ begin perform public.preview_tournament_award((select v::uuid from bulk_test where k='award'),(select v::uuid from bulk_test where k='tournament'));raise exception 'FAIL member preview access';exception when raise_exception then if SQLERRM='FAIL member preview access' then raise;end if;end;
+ begin perform public.grant_tournament_award((select v::uuid from bulk_test where k='award'),(select v::uuid from bulk_test where k='tournament'),'test');raise exception 'FAIL member granted awards';exception when raise_exception then if SQLERRM='FAIL member granted awards' then raise;end if;end;
+end $$;
+reset role;
+rollback;
